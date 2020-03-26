@@ -32,7 +32,7 @@ class Location(models.Model):
 
 class Venue(models.Model):
     name = models.CharField(max_length=100, null=True)
-    location = models.ForeignKey(Location, on_delete=CASCADE, null=True)
+    location = models.ForeignKey(Location, on_delete=CASCADE)
     capacity = models.IntegerField()
     venue_address = CharField(max_length=100, null=True)
     parking_info = CharField(max_length=500, null=True)
@@ -40,4 +40,4 @@ class Venue(models.Model):
 class Album(models.Model):
     name = models.CharField(max_length=100, null=True)
     year = models.CharField(max_length=4, null=True)
-    artist = models.ForeignKey(Artist, on_delete=CASCADE, null=True)
+    artist = models.ForeignKey(Artist, on_delete=CASCADE)
