@@ -6,9 +6,9 @@ import requests
 
 # Calling this function will scrape the API's and load up our database
 def web_scrape():
-    cid = ''
-    secret = ''
-    ticketmaster_cid = ''
+    cid = '15b2abfe5a754bdcb5e75cbf056f7985'
+    secret = '439b829d6d084631b09d4a9773adc80c'
+    ticketmaster_cid = 'oBmSAafLPLFBbfAJFhN39CLjJcIHOP1N'
     client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
@@ -30,6 +30,7 @@ def web_scrape():
             name = event['name']
             splitName = name.split(" w/")
             artistNames.append(splitName[0])
+            
 
     for artistName in artistNames:
         artist = sp.search(q=artistName, type='artist', limit=1, offset=0)

@@ -13,6 +13,9 @@ class Artist(models.Model):
     twitter_url = models.URLField(null=True)
     wiki_url = models.URLField(null=True)
 
+    def __str__(self):
+        return self.name
+
 class Location(models.Model):
     city = models.CharField(max_length=100, null=True)
     country = models.CharField(max_length=100, null=True)
@@ -23,6 +26,9 @@ class Location(models.Model):
     elevation = models.IntegerField(null=True)
     image = models.URLField(null=True)
 
+    def __str__(self):
+        return self.city
+
 class Venue(models.Model):
     name = models.CharField(max_length=100, null=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
@@ -30,12 +36,18 @@ class Venue(models.Model):
     venue_address = models.CharField(max_length=100, null=True)
     parking_info = models.CharField(max_length=500, null=True)
 
+    def __str__(self):
+        return self.name
+
 class Concert(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, null=True)
     date = models.DateField(null=True)
     time = models.TimeField(null=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.artist.name + " at " + self.venue.name
 
 class Album(models.Model):
     name = models.CharField(max_length=100, null=True)
