@@ -1,12 +1,6 @@
 from django.db import models
 
 # Create your models here.
-class Concert(models.Model):
-    artist = models.ForeignKey(Artist, on_delete=CASCADE, null=True)
-    venue = models.ForeignKey(Venue, on_delete=CASCADE, null=True)
-    date = models.DateField(null=True)
-    time = models.TimeField(null=True)
-    location = models.ForeignKey(Location)
 
 class Artist(models.Model):
     name = models.CharField(max_length=50, null=True)
@@ -29,15 +23,21 @@ class Location(models.Model):
     elevation = models.IntegerField(null=True)
     image = models.URLField(null=True)
 
-
 class Venue(models.Model):
     name = models.CharField(max_length=100, null=True)
-    location = models.ForeignKey(Location, on_delete=CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
     capacity = models.IntegerField()
-    venue_address = CharField(max_length=100, null=True)
-    parking_info = CharField(max_length=500, null=True)
+    venue_address = models.CharField(max_length=100, null=True)
+    parking_info = models.CharField(max_length=500, null=True)
+
+class Concert(models.Model):
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, null=True)
+    date = models.DateField(null=True)
+    time = models.TimeField(null=True)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
 class Album(models.Model):
     name = models.CharField(max_length=100, null=True)
     year = models.CharField(max_length=4, null=True)
-    artist = models.ForeignKey(Artist, on_delete=CASCADE)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
