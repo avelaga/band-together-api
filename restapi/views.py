@@ -1,8 +1,30 @@
 from django.shortcuts import render
-from models import Concert, Artist, Location, Album, Venue
+from rest_framework import generics
+from .models import Concert, Artist, Location, Album, Venue
+from .serializers import ConcertSerializer, ArtistSerializer, LocationSerializer, AlbumSerializer, VenueSerializer
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
+
+class ArtistList(generics.ListAPIView):
+  queryset = Artist.objects.all() # where data is coming from
+  serializer_class = ArtistSerializer
+
+class LocationList(generics.ListAPIView):
+  queryset = Location.objects.all() # where data is coming from
+  serializer_class = LocationSerializer
+
+class VenueList(generics.ListAPIView):
+  queryset = Venue.objects.all() # where data is coming from
+  serializer_class = VenueSerializer
+
+class ConcertList(generics.ListAPIView):
+  queryset = Concert.objects.all() # where data is coming from
+  serializer_class = ConcertSerializer
+
+class AlbumList(generics.ListAPIView):
+  queryset = Album.objects.all() # where data is coming from
+  serializer_class = AlbumSerializer
 
 # Calling this function will scrape the API's and load up our database
 def web_scrape():
