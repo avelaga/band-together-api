@@ -32,72 +32,78 @@ class ConcertList(generics.ListAPIView):
 # Calling this function will scrape the API's and load up our database
 def web_scrape():
     tik = time.perf_counter()
-    try:
-        citySet = set()
-        venueSet = set()
-        artistSet = set()
-        concertSet = set()
-        newArtistSet = set()
-        newVenueSet = set()
+    citySet = set()
+    venueSet = set()
+    artistSet = set()
+    concertSet = set()
+    newArtistSet = set()
+    newVenueSet = set()
 
-        cid = ''
-        secret = ''
-        ticketmaster_cid = ''
-        client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
-        sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+    cid = ''
+    secret = ''
+    ticketmaster_cid = ''
+    client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
+    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-        ticketmaster_base_url = 'https://app.ticketmaster.com/discovery/v2/'
-        venue_url = ticketmaster_base_url + '/venues'
-        base_params = {"apikey": ticketmaster_cid}
-        venue_params = base_params.copy()
-        venue_params.update({"keyword": "Frank Erwin Center", "limit": 1})
-        event_url = ticketmaster_base_url + "/events"
-        event_params = base_params.copy()
-        event_params.update({"venueId": "KovZpZA7dE7A"})
+    ticketmaster_base_url = 'https://app.ticketmaster.com/discovery/v2/'
+    venue_url = ticketmaster_base_url + '/venues'
+    base_params = {"apikey": ticketmaster_cid}
+    venue_params = base_params.copy()
+    venue_params.update({"keyword": "Frank Erwin Center", "limit": 1})
+    event_url = ticketmaster_base_url + "/events"
+    event_params = base_params.copy()
+    event_params.update({"venueId": "KovZpZA7dE7A"})
 
-        r = requests.get(url=event_url, params=event_params)
+    r = requests.get(url=event_url, params=event_params)
 
-        events = r.json()['_embedded']['events']
-        artistNames = []
-        for event in events:
-            if event['classifications'][0]['segment']['name'] == 'Music':
-                name = event['name']
-                splitName = name.split(" w/")
-                artistNames.append(splitName[0])
-        
-        for artistName in newArtistSet:
-                newArtist = getArtist(artistName=artistName, sp=sp, artistSet=artistSet, newArtistSet=newArtistSet)
-
-        while len(newArtistSet) != 0 or len(newVenueSet) != 0
-            for artistName in newArtistSet:
+    events = r.json()['_embedded']['events']
+    artistNames = []
+    for event in events:
+        if event['classifications'][0]['segment']['name'] == 'Music':
+            name = event['name']
+            splitName = name.split(" w/")
+            artistNames.append(splitName[0])
+    
+    for artistName in artistNames:
+            newArtist = getArtist(artistName=artistName, sp=sp, artistSet=artistSet, newArtistSet=newArtistSet)
+    count = 0
+    while len(newArtistSet) != 0 or len(newVenueSet) != 0:
+        count = count + 1
+        print(count)
+        for artistName in artistSet:
+            if artistName in newArtistSet:
                 artist = Artist.objects.get(name=artistName)
                 event_params = base_params.copy()
                 event_params.update({'keyword': artist.name})
                 r = requests.get(url=event_url, params=event_params)
                 events = r.json()['_embedded']['events']
                 for event in events:
-                    if 'name' in event['_embedded']['venues'][0].keys() and (not 'Festival' == event['_embedded']['classifications'][0]['subtype']['name']):
-                        getConcert(event, artist, concertSet, citySet, venueSet, artistSet, newArtistSet True)
+                    print(artistName + event['id'])
+                    print('name' in event['_embedded']['venues'][0].keys())
+                    print('subType' in event['classifications'][0])
+                    if 'name' in event['_embedded']['venues'][0].keys():
+                        if 'subType' in event['classifications'][0]:
+                            if 'Festival' == event['classifications'][0]['subType']['name']):
+                                pass
+                        getConcert(event, artist, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, True, sp)
                 newArtistSet.remove(artistName)
 
-            for venueName in newVenueSet:
+        for venueName in venueSet:
+            if venueName in newVenueSet:
                 venue = Venue.objects.get(name=venueName)
                 event_params = base_params.copy()
                 event_params.update({'venueId': venue.venue_id})
                 r = requests.get(url=event_url, params=event_params)
                 events = r.json()['_embedded']['events']
                 for event in events:
-                    if event['classifications'][0]['segment']['name'] == 'Music' and (not 'Festival' == event['_embedded']['classifications'][0]['subtype']['name']):
-                        getConcert(event, venue, concertSet, citySet, venueSet, artistSet, newArtistSet True)
+                    if event['classifications'][0]['segment']['name'] == 'Music' and (not 'Festival' == event['classifications'][0]['subType']['name']):
+                        getConcert(event, venue, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, False, sp)
                 newVenueSet.remove(venueName)
 
-        tok = time.perf_counter()
-        print("Time in seconds: " + str(tok - tik))
-    except Exception as e:
-        print(e.args)
-        print("Dude it took " + str(tok-tik) " seconds to fuck up")
+    tok = time.perf_counter()
+    print("Time in seconds: " + str(tok - tik))
 
-def getConcert(concert_items, given, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, givenIsArtist):
+def getConcert(concert_items, given, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, givenIsArtist, sp):
     try:
         concert_id = concert_items['id']
         if concert_id in concertSet:
@@ -111,14 +117,18 @@ def getConcert(concert_items, given, concertSet, citySet, venueSet, newVenueSet,
         max_ticket = concert_items['priceRanges'][0]['max']
         newConcert = None
         if givenIsArtist:
-            venue = getVenue(concert_items, location, venueSet)
+            print("Doing this")
+            venue = getVenue(concert_items, location, venueSet, newVenueSet)
             newConcert = Concert(artist=given, location=location, venue=venue, date=date, time=time, concert_id=concert_id, ticket_min=min_ticket, ticket_max=max_ticket)
         else:
-            artist = 
+            name = event['name']
+            artistNameName = name.split(" w/")
+            artist = getArtist(artistName, sp, artistSet, newArtistSet)
+            newConcert = Concert(artist=artist, location=location, venue=given, date=date, time=time, concert_id=concert_id, ticket_min=min_ticket, ticket_max=max_ticket)
         concertSet.add(concert_id)
         newConcert.save()
-    except:
-        pass
+    except Exception as e:
+        print("Exception thrown: " + str(e.args))
 
 def getVenue(concert_items, location, venueSet, newVenueSet):
     name = concert_items['_embedded']['venues'][0]['name']
@@ -150,7 +160,7 @@ def getLocation(cityName, citySet):
     city = city_items['city']
     country = city_items['country']
     if country != "United States of America":
-        raise Exception()
+        raise Exception("Not in USA")
     region = city_items['region']
     population = cityDetails['population']
     elevation = cityDetails['elevationMeters']
