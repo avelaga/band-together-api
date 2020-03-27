@@ -1,14 +1,14 @@
 from django.shortcuts import render
-from models import Concert, Artist, Location, Album, Venue
+from .models import Concert, Artist, Location, Album, Venue
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
 
 # Calling this function will scrape the API's and load up our database
 def web_scrape():
-    cid = '15b2abfe5a754bdcb5e75cbf056f7985'
-    secret = '439b829d6d084631b09d4a9773adc80c'
-    ticketmaster_cid = 'oBmSAafLPLFBbfAJFhN39CLjJcIHOP1N'
+    cid = ''
+    secret = ''
+    ticketmaster_cid = ''
     client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
@@ -30,19 +30,33 @@ def web_scrape():
             name = event['name']
             splitName = name.split(" w/")
             artistNames.append(splitName[0])
-            
+
 
     for artistName in artistNames:
         artist = sp.search(q=artistName, type='artist', limit=1, offset=0)
-        name = artist['artists']['items'][0]['name']
-        popularity = artist['artists']['items'][0]['popularity']
+        artist_items = artist['artists']['items'][0]
+        name = artist_items['name']
+        popularity = artist_items['popularity']
+        followers = artist_items['followers']['total']
+        image_url = artist_items['images'][0]['url']
+        print(name)
+        print(image_url)
 
-    for val in artists:
-        event_params = base_params.copy()
-        event_params.update({'keyword': val.name})
-        r = requests.get(url=event_url, params=event_params)
-        events = r.json()['_embedded']['events']
-        for event in events:
-            if 'name' in event['_embedded']['venues'][0].keys():
-                venueName = event['_embedded']['venues'][0]['name']
 
+
+    # for val in artists:
+    #     event_params = base_params.copy()
+    #     event_params.update({'keyword': val.name})
+    #     r = requests.get(url=event_url, params=event_params)
+    #     events = r.json()['_embedded']['events']
+    #     for event in events:
+    #         if 'name' in event['_embedded']['venues'][0].keys():
+    #             venueName = event['_embedded']['venues'][0]['name']
+
+def spotifyTest():
+    cid = '15b2abfe5a754bdcb5e75cbf056f7985'
+    secret = '439b829d6d084631b09d4a9773adc80c'
+    client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
+    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+    artist = sp.search(q='John Mayer', type='artist', limit=1, offset=0)
+    print(artist)
