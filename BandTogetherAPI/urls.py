@@ -21,7 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('restapi/artist', restapiviews.ArtistList.as_view(), name='artist-list'),
     path('restapi/location', restapiviews.LocationList.as_view(), name='location-list'),
-    path('restapi/venue', restapiviews.VenueList.as_view(), name='venue-list'),
     path('restapi/concert', restapiviews.ConcertList.as_view(), name='concert-list'),
-    path('restapi/album', restapiviews.AlbumList.as_view(), name='album-list'),
 ]
