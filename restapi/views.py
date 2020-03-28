@@ -52,17 +52,16 @@ def web_scrape():
     venue_params.update({"keyword": "Frank Erwin Center", "limit": 1})
     event_url = ticketmaster_base_url + "/events"
     event_params = base_params.copy()
-    event_params.update({"venueId": "KovZpZA7dE7A"})
+    event_params.update({"venueId": "KovZpZA7dE7A", "classificationName": ["music", "-festival"]})
 
     r = requests.get(url=event_url, params=event_params)
 
     events = r.json()['_embedded']['events']
     artistNames = []
     for event in events:
-        if event['classifications'][0]['segment']['name'] == 'Music':
-            name = event['name']
-            splitName = name.split(" w/")
-            artistNames.append(splitName[0])
+        name = event['name']
+        splitName = name.split(" w/")
+        artistNames.append(splitName[0])
     
     for artistName in artistNames:
             newArtist = getArtist(artistName=artistName, sp=sp, artistSet=artistSet, newArtistSet=newArtistSet)
@@ -71,12 +70,12 @@ def web_scrape():
         count = count + 1
         print(count)
         for artistName in artistSet:
-            print("In artist loop")
             if artistName in newArtistSet:
                 artist = Artist.objects.get(name=artistName)
-                print(artist.name)
+                print("----------------------------" + artist.name + "--------------------------------")
                 event_params = base_params.copy()
                 event_params.update({'keyword': artist.name})
+                event_params.update({"classificationName": ["music", "-festival"]})
                 r = requests.get(url=event_url, params=event_params)
                 events = r.json()['_embedded']['events']
                 for event in events:
@@ -85,21 +84,26 @@ def web_scrape():
                         getConcert(event, artist, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, True, sp)
                 newArtistSet.remove(artistName)
 
+        print("Entering venue loop")
         for venueName in venueSet:
-            print("In venue loop")
             if venueName in newVenueSet:
                 venue = Venue.objects.get(name=venueName)
                 event_params = base_params.copy()
                 event_params.update({'venueId': venue.venue_id})
+                event_params.update({"classificationName": ["music", "-festival"]})
                 r = requests.get(url=event_url, params=event_params)
                 events = r.json()['_embedded']['events']
                 for event in events:
-                    if event['classifications'][0]['segment']['name'] == 'Music' and (not 'Festival' == event['classifications'][0]['subType']['name']):
-                        getConcert(event, venue, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, False, sp)
+                    getConcert(event, venue, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, False, sp)
                 newVenueSet.remove(venueName)
 
     tok = time.perf_counter()
     print("Time in seconds: " + str(tok - tik))
+
+
+
+# exec(open("script.py").read())
+
 
 def getConcert(concert_items, given, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, givenIsArtist, sp):
     try:
@@ -108,18 +112,24 @@ def getConcert(concert_items, given, concertSet, citySet, venueSet, newVenueSet,
             return Concert.objects.get(concert_id=concert_id)
         cityName = concert_items['_embedded']['venues'][0]['city']['name']
         location = getLocation(cityName, citySet)
-        
         date = concert_items['dates']['start']['localDate']
         time = concert_items['dates']['start']['localTime']
-        min_ticket = concert_items['priceRanges'][0]['min']
-        max_ticket = concert_items['priceRanges'][0]['max']
+        min_ticket = None
+        max_ticket = None
+        if 'priceRanges' in concert_items.keys():
+            min_ticket = concert_items['priceRanges'][0]['min']
+            max_ticket = concert_items['priceRanges'][0]['max']
         newConcert = None
         if givenIsArtist:
-            venue = getVenue(concert_items, location, venueSet, newVenueSet)
+            venue = None
+            try:
+                venue = getVenue(concert_items, location, venueSet, newVenueSet)
+            except:
+                pass
             newConcert = Concert(artist=given, location=location, venue=venue, date=date, time=time, concert_id=concert_id, ticket_min=min_ticket, ticket_max=max_ticket)
         else:
-            name = event['name']
-            artistNameName = name.split(" w/")
+            name = concert_items['name']
+            artistName = name.split(" w/")
             artist = getArtist(artistName, sp, artistSet, newArtistSet)
             newConcert = Concert(artist=artist, location=location, venue=given, date=date, time=time, concert_id=concert_id, ticket_min=min_ticket, ticket_max=max_ticket)
         concertSet.add(concert_id)
@@ -133,9 +143,15 @@ def getVenue(concert_items, location, venueSet, newVenueSet):
         return Venue.objects.get(name=name)
     location = location
     address = concert_items['_embedded']['venues'][0]['address']
-    parking_info = concert_items['_embedded']['venues'][0]['parkingDetail']
-    postalCode = concert_items['_embedded']['venues'][0]['postalCode']
-    image = concert_items['_embedded']['venues'][0]['images'][0]
+    parking_info = None
+    if 'parkingDetail' in concert_items['_embedded']['venues'][0]:
+        parking_info = concert_items['_embedded']['venues'][0]['parkingDetail']
+    postalCode = None
+    if 'postalCode' in concert_items['_embedded']['venues'][0]:
+        postalCode = concert_items['_embedded']['venues'][0]['postalCode']
+    image = None
+    if 'images' in concert_items['_embedded']['venues'][0]:
+        image = concert_items['_embedded']['venues'][0]['images'][0]
     venue_id = concert_items['_embedded']['venues'][0]['id']
     newVenue = Venue(name=name, location=location, venue_address=address, parking_info=parking_info, postal_code=postalCode, venue_id=venue_id)
     venueSet.add(name)
