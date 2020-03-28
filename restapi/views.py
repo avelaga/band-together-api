@@ -71,24 +71,22 @@ def web_scrape():
         count = count + 1
         print(count)
         for artistName in artistSet:
+            print("In artist loop")
             if artistName in newArtistSet:
                 artist = Artist.objects.get(name=artistName)
+                print(artist.name)
                 event_params = base_params.copy()
                 event_params.update({'keyword': artist.name})
                 r = requests.get(url=event_url, params=event_params)
                 events = r.json()['_embedded']['events']
                 for event in events:
-                    print(artistName + event['id'])
-                    print('name' in event['_embedded']['venues'][0].keys())
-                    print('subType' in event['classifications'][0])
-                    if 'name' in event['_embedded']['venues'][0].keys():
-                        if 'subType' in event['classifications'][0]:
-                            if 'Festival' == event['classifications'][0]['subType']['name']):
-                                pass
+                    if 'name' in event['_embedded']['venues'][0].keys():        # We only want venues with names
+                        print(event['_embedded']['venues'][0]['name'])
                         getConcert(event, artist, concertSet, citySet, venueSet, newVenueSet, artistSet, newArtistSet, True, sp)
                 newArtistSet.remove(artistName)
 
         for venueName in venueSet:
+            print("In venue loop")
             if venueName in newVenueSet:
                 venue = Venue.objects.get(name=venueName)
                 event_params = base_params.copy()
@@ -117,7 +115,6 @@ def getConcert(concert_items, given, concertSet, citySet, venueSet, newVenueSet,
         max_ticket = concert_items['priceRanges'][0]['max']
         newConcert = None
         if givenIsArtist:
-            print("Doing this")
             venue = getVenue(concert_items, location, venueSet, newVenueSet)
             newConcert = Concert(artist=given, location=location, venue=venue, date=date, time=time, concert_id=concert_id, ticket_min=min_ticket, ticket_max=max_ticket)
         else:
