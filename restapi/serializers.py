@@ -22,12 +22,3 @@ class VenueSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = Venue
     fields = '__all__' #uses all fields
-
-    # artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
-    # location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    # venue = models.ForeignKey(Venue, on_delete=models.CASCADE, null=True)
-    # date = models.DateField(null=True)
-    # time = models.TimeField(null=True)
-    # concert_id = models.CharField(max_length=50, null=True)
-    # ticket_min = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    # ticket_max = models.DecimalField(max_digits=10, decimal_places=2, null=True)

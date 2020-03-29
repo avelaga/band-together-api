@@ -51,8 +51,8 @@ class VenueList(generics.ListAPIView):
   serializer_class = VenueSerializer
 
 class VenueDetail(generics.RetrieveAPIView):
-  queryset = Concert.objects.all()
-  serializer_class = ConcertSerializer
+  queryset = Venue.objects.all()
+  serializer_class = VenueSerializer
 
 # Calling this function will scrape the API's and load up our database
 def web_scrape():
