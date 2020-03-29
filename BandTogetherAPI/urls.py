@@ -22,4 +22,7 @@ urlpatterns = [
     path('restapi/artist', restapiviews.ArtistList.as_view(), name='artist-list'),
     path('restapi/location', restapiviews.LocationList.as_view(), name='location-list'),
     path('restapi/concert', restapiviews.ConcertList.as_view(), name='concert-list'),
+    path('restapi/artist/<int:pk>', restapiviews.ArtistDetail.as_view(), name='artist-detail'),
+    path('restapi/location/<int:pk>', restapiviews.LocationDetail.as_view(), name='location-detail'),
+    path('restapi/concert/<int:pk>', restapiviews.ConcertDetail.as_view(), name='concert-detail')
 ]
