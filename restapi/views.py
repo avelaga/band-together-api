@@ -17,6 +17,10 @@ class ArtistList(generics.ListAPIView):
   queryset = Artist.objects.all()
   serializer_class = ArtistSerializer
 
+class ArtistDetail(generics.RetrieveAPIView):
+    queryset = Artist.objects.all()
+    serializer_class = ArtistSerializer
+
 '''
 API endpoint that lists all locations in the database
 '''
@@ -24,10 +28,18 @@ class LocationList(generics.ListAPIView):
   queryset = Location.objects.all()
   serializer_class = LocationSerializer
 
+class LocationDetail(generics.RetrieveAPIView):
+  queryset = Location.objects.all()
+  serializer_class = LocationSerializer
+
 '''
 API endpoint that lists all concerts in the database
 '''
 class ConcertList(generics.ListAPIView):
+  queryset = Concert.objects.all()
+  serializer_class = ConcertSerializer
+
+class ConcertDetail(generics.RetrieveAPIView):
   queryset = Concert.objects.all()
   serializer_class = ConcertSerializer
 
