@@ -3,10 +3,12 @@ from .models import Concert, Artist, Location, Venue
 
 class ConcertSerializer(serializers.HyperlinkedModelSerializer):
   artistName = serializers.ReadOnlyField(source='artist.name')
+  artistId = serializers.ReadOnlyField(source='artist.id')
   locationName = serializers.ReadOnlyField(source='location.city')
+  locationId = serializers.ReadOnlyField(source='location.id')
   class Meta:
     model = Concert
-    fields = ['artist', 'location', 'venue', 'date', 'time', 'ticket_min', 'ticket_max', 'artistName', 'locationName']
+    fields = ['artist', 'location', 'venue', 'date', 'time', 'ticket_min', 'ticket_max', 'artistName', 'locationName', 'artistId', 'locationId']
 
 class ArtistSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
