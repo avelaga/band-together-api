@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import Concert, Artist, Location, Album, Venue
 from rest_framework import generics
 from .models import Concert, Artist, Location, Album, Venue
-from .serializers import ConcertSerializer, ArtistSerializer, LocationSerializer, VenueSerializer
+from .serializers import ConcertSerializer, ArtistSerializer, LocationSerializer, VenueSerializer, ArtistListSerializer, LocationListSerializer
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
@@ -18,11 +18,7 @@ API endpoints for artist
 '''
 class ArtistList(generics.ListAPIView):
   queryset = Artist.objects.all()
-  serializer_class = ArtistSerializer
-
-# class ArtistDetail(generics.RetrieveAPIView):
-#     queryset = Artist.objects.all()
-#     serializer_class = ArtistSerializer
+  serializer_class = ArtistListSerializer
 
 
 class ArtistDetail(APIView):
@@ -55,7 +51,7 @@ API endpoints for locations
 '''
 class LocationList(generics.ListAPIView):
   queryset = Location.objects.all()
-  serializer_class = LocationSerializer
+  serializer_class = LocationListSerializer
 
 class LocationDetail(generics.RetrieveAPIView):
   queryset = Location.objects.all()

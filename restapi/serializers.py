@@ -12,10 +12,10 @@ class ConcertSerializer(serializers.HyperlinkedModelSerializer):
     model = Concert
     fields = ['id', 'artist', 'location', 'venue', 'date', 'time', 'ticket_min', 'ticket_max', 'artistName', 'locationName', 'artistId', 'locationId', 'artistImage', 'venueImage']
 
-# class ArtistSerializer(serializers.HyperlinkedModelSerializer):
-#   class Meta:
-#     model = Artist
-#     fields = ['id', 'name', 'popularity_score', 'genre', 'image', 'spotify_url', 'num_spotify_followers', 'website', 'twitter_url', 'wiki_url', 'venueName', 'concertId', 'locationName', 'locationId']
+class ArtistListSerializer(serializers.HyperlinkedModelSerializer):
+  class Meta:
+    model = Artist
+    fields = ['id', 'name', 'popularity_score', 'genre', 'image', 'spotify_url', 'num_spotify_followers', 'website', 'twitter_url', 'wiki_url']
 
 class ArtistSerializer(serializers.HyperlinkedModelSerializer):
   nextVenueName = serializers.SerializerMethodField('get_venue_name')
@@ -38,6 +38,14 @@ class ArtistSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = Artist
     fields = ['id', 'name', 'popularity_score', 'genre', 'image', 'spotify_url', 'num_spotify_followers', 'website', 'twitter_url', 'wiki_url', 'nextVenueName', 'nextConcertId', 'nextLocationName', 'nextLocationId']
+
+
+class LocationListSerializer(serializers.HyperlinkedModelSerializer):
+
+  class Meta:
+    model = Location
+    fields = ['id', 'city', 'country', 'population', 'timezone', 'region', 'area_code', 'elevation', 'image']
+
 
 class LocationSerializer(serializers.HyperlinkedModelSerializer):
   nextVenueName = serializers.SerializerMethodField('get_venue_name')
