@@ -229,7 +229,7 @@ def getVenue(concert_items, location, venueSet, newVenueSet):
         postalCode = concert_items['_embedded']['venues'][0]['postalCode']
     image = None
     if 'images' in concert_items['_embedded']['venues'][0]:
-        image = concert_items['_embedded']['venues'][0]['images'][0]
+        image = concert_items['_embedded']['venues'][0]['images'][0]['url']
     venue_id = concert_items['_embedded']['venues'][0]['id']
     newVenue = Venue(name=name, location=location, venue_address=address, parking_info=parking_info, postal_code=postalCode, venue_id=venue_id, image=image)
     venueSet.add(name)
@@ -259,7 +259,7 @@ def getLocation(cityName, citySet):
     rurl = 'https://en.wikipedia.org/api/rest_v1/page/summary/' + city
     r = requests.get(rurl)
     cityInfo = r.json()
-    image = cityInfo['thumbnail']
+    image = cityInfo['thumbnail']['source']
     bio = cityInfo['extract']
     newLocation = Location(city=city, country=country, population=population, timezone=timezone, region=region, elevation=elevation, image=image, bio=bio)
     citySet.add(cityName)
