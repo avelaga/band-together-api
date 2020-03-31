@@ -20,7 +20,7 @@ class ArtistSerializer(serializers.HyperlinkedModelSerializer):
 class LocationSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = Location
-    fields = ['id', 'city', 'population', 'timezone', 'region', 'area_code', 'elevation', 'image']
+    fields = ['id', 'city', 'country', 'population', 'timezone', 'region', 'area_code', 'elevation', 'image']
 
 class VenueSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:

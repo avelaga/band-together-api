@@ -21,6 +21,9 @@ class ArtistDetail(generics.RetrieveAPIView):
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
 
+
+
+
 '''
 API endpoints for locations
 '''
