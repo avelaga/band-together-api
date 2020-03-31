@@ -25,6 +25,7 @@ class Location(models.Model):
     area_code = models.CharField(max_length=3, null=True)
     elevation = models.IntegerField(null=True)
     image = models.URLField(null=True)
+    bio = models.TextField()
 
     def __str__(self):
         return self.city
@@ -42,9 +43,9 @@ class Venue(models.Model):
         return self.name
 
 class Concert(models.Model):
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, null=True)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, null=True)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     date = models.DateField(null=True)
     time = models.TimeField(null=True)
     concert_id = models.CharField(max_length=50, null=True)

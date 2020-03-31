@@ -41,7 +41,7 @@ class ArtistDetail(APIView):
         concert = self.get_concert(artist)
         venue = concert.venue
         location = concert.location
-        context = {'nextVenueName': venue.name, 'nextConcertId': concert.id, 'nextLocationName': location.city, 'nextLocationId': location.id}
+        context = {'nextVenueName': venue.name, 'nextConcertId': concert.id, 'nextConcertDate': concert.date, 'nextConcertTime': concert.time, 'nextLocationName': location.city, 'nextLocationId': location.id}
         
         serializer = ArtistSerializer(artist, context=context)
         return Response(serializer.data)
@@ -64,13 +64,12 @@ class LocationDetail(generics.RetrieveAPIView):
         concerts = Concert.objects.filter(location=location)
         return list(concerts.order_by('date')[:1])[0]
 
-    
   def get(self, request, pk, format=None):
         location = self.get_location(pk)
         concert = self.get_concert(location)
         venue = concert.venue
         artist = concert.artist
-        context = {'nextVenueName': venue.name, 'nextConcertId': concert.id, 'nextArtistName': artist.name, 'nextArtistId': artist.id}
+        context = {'nextVenueName': venue.name, 'nextConcertId': concert.id, 'nextConcertDate': concert.date, 'nextConcertTime': concert.time, 'nextArtistName': artist.name, 'nextArtistId': artist.id}
         
         serializer = LocationSerializer(location, context=context)
         return Response(serializer.data)
@@ -109,7 +108,7 @@ def web_scrape():
     newVenueSet = set()
 
     cid = '15b2abfe5a754bdcb5e75cbf056f7985'
-    secret = 'a8915649f5bc45e68b231c1732a74b3d'
+    secret = '596d5d4c5ee84749ae4e67de0f0dd079'
     ticketmaster_cid = 'oBmSAafLPLFBbfAJFhN39CLjJcIHOP1N'
     client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -127,14 +126,16 @@ def web_scrape():
 
     events = r.json()['_embedded']['events']
     artistNames = []
+    eventVals = []
     for event in events:
-        # name = event['name']
-        # splitName = name.split(" w/")
         name = event['_embedded']['attractions'][0]['name']
+        eventVals.append(event)
         artistNames.append(name)
     
-    for artistName in artistNames:
-            newArtist = getArtist(artistName=artistName, sp=sp, artistSet=artistSet, newArtistSet=newArtistSet)
+    for i in range(0, len(artistNames)):
+            artistName = artistNames[i]
+            concert_items = eventVals[i]
+            newArtist = getArtist(artistName=artistName, sp=sp, artistSet=artistSet, newArtistSet=newArtistSet, concert_items=concert_items)
     count = 0
     while len(newArtistSet) != 0 or len(newVenueSet) != 0:
         count = count + 1
@@ -204,10 +205,8 @@ def getConcert(concert_items, given, concertSet, citySet, venueSet, newVenueSet,
             newConcert = Concert(artist=given, location=location, venue=venue, date=date, time=time, concert_id=concert_id, ticket_min=min_ticket, ticket_max=max_ticket)
         else:
             artistName = concert_items['_embedded']['attractions'][0]['name']
-            # name = concert_items['name']
-            # artistName = name.split(" w/")
             print(artistName)
-            artist = getArtist(artistName, sp, artistSet, newArtistSet)
+            artist = getArtist(artistName, sp, artistSet, newArtistSet, concert_items)
             newConcert = Concert(artist=artist, location=location, venue=given, date=date, time=time, concert_id=concert_id, ticket_min=min_ticket, ticket_max=max_ticket)
         concertSet.add(concert_id)
         newConcert.save()
@@ -221,7 +220,7 @@ def getVenue(concert_items, location, venueSet, newVenueSet):
     if name in venueSet:
         return Venue.objects.get(name=name)
     location = location
-    address = concert_items['_embedded']['venues'][0]['address']
+    address = concert_items['_embedded']['venues'][0]['address']['line1']
     parking_info = None
     if 'parkingDetail' in concert_items['_embedded']['venues'][0]:
         parking_info = concert_items['_embedded']['venues'][0]['parkingDetail']
@@ -232,7 +231,7 @@ def getVenue(concert_items, location, venueSet, newVenueSet):
     if 'images' in concert_items['_embedded']['venues'][0]:
         image = concert_items['_embedded']['venues'][0]['images'][0]
     venue_id = concert_items['_embedded']['venues'][0]['id']
-    newVenue = Venue(name=name, location=location, venue_address=address, parking_info=parking_info, postal_code=postalCode, venue_id=venue_id)
+    newVenue = Venue(name=name, location=location, venue_address=address, parking_info=parking_info, postal_code=postalCode, venue_id=venue_id, image=image)
     venueSet.add(name)
     newVenueSet.add(name)
     newVenue.save()
@@ -257,14 +256,18 @@ def getLocation(cityName, citySet):
     population = cityDetails['population']
     elevation = cityDetails['elevationMeters']
     timezone = cityDetails['timezone']
-
-    newLocation = Location(city=city, country=country, population=population, timezone=timezone, region=region, elevation=elevation)
+    rurl = 'https://en.wikipedia.org/api/rest_v1/page/summary/' + city
+    r = requests.get(rurl)
+    cityInfo = r.json()
+    image = cityInfo['thumbnail']
+    bio = cityInfo['extract']
+    newLocation = Location(city=city, country=country, population=population, timezone=timezone, region=region, elevation=elevation, image=image, bio=bio)
     citySet.add(cityName)
     newLocation.save()
     return newLocation
 
 
-def getArtist(artistName, sp, artistSet, newArtistSet):
+def getArtist(artistName, sp, artistSet, newArtistSet, concert_items):
     artist = sp.search(q=artistName, type='artist', limit=1, offset=0)
     artist_items = artist['artists']['items'][0]
     name = artist_items['name']
@@ -275,7 +278,17 @@ def getArtist(artistName, sp, artistSet, newArtistSet):
     spotify_url = artist_items['external_urls']['spotify']
     followers = artist_items['followers']['total']
     image_url = artist_items['images'][0]['url']
-    newArtist = Artist(name=name, popularity_score=popularity, genre=genre, image=image_url, spotify_url=spotify_url, num_spotify_followers=followers)
+    twitter_url = None
+    wiki_url = None
+    website = None
+    if 'externalLinks' in concert_items['_embedded']['attractions'][0]:
+        if 'twitter' in concert_items['_embedded']['attractions'][0]['externalLinks']:
+            twitter_url = concert_items['_embedded']['attractions'][0]['externalLinks']['twitter'][0]['url']
+        if 'wiki' in concert_items['_embedded']['attractions'][0]['externalLinks']:
+            wiki_url = concert_items['_embedded']['attractions'][0]['externalLinks']['wiki'][0]['url']
+        if 'homepage' in concert_items['_embedded']['attractions'][0]['externalLinks']:
+            website = concert_items['_embedded']['attractions'][0]['externalLinks']['homepage'][0]['url']
+    newArtist = Artist(name=name, popularity_score=popularity, genre=genre, image=image_url, spotify_url=spotify_url, num_spotify_followers=followers, twitter_url=twitter_url, wiki_url=wiki_url, website=website)
     artistSet.add(name)
     newArtistSet.add(name)
     newArtist.save()
