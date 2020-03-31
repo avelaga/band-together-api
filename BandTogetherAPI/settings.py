@@ -25,13 +25,10 @@ SECRET_KEY = '0-m#@0opjl888&q1y@w##ylpys0)5^xpp$r56g5+(r%2_!cy3='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '72.182.112.17',
-    '192.168.1.170',
-    'ec2-34-207-91-129.compute-1.amazonaws.com',
-    '34.207.91.129'
-]
+ALLOWED_HOSTS =[
+'ec2-52-202-44-47.compute-1.amazonaws.com',
+'52.202.44.47',
+'bandtogetherapi.xyz']
 
 
 # Application definition
