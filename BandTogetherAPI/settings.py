@@ -25,11 +25,10 @@ SECRET_KEY = '0-m#@0opjl888&q1y@w##ylpys0)5^xpp$r56g5+(r%2_!cy3='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '72.182.112.17',
-    '192.168.1.170'
-]
+ALLOWED_HOSTS =[
+'ec2-52-202-44-47.compute-1.amazonaws.com',
+'52.202.44.47',
+'bandtogetherapi.xyz']
 
 
 # Application definition
@@ -127,7 +126,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
