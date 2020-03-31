@@ -15,14 +15,14 @@ class ConcertSerializer(serializers.HyperlinkedModelSerializer):
 class ArtistSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = Artist
-    fields = '__all__' #uses all fields
+    fields = ['id', 'name', 'popularity_score', 'genre', 'image', 'spotify_url', 'num_spotify_followers', 'website', 'twitter_url', 'wiki_url']
 
 class LocationSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = Location
-    fields = '__all__' #uses all fields
+    fields = ['id', 'city', 'population', 'timezone', 'region', 'area_code', 'elevation', 'image']
 
 class VenueSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = Venue
-    fields = '__all__' #uses all fields
+    fields = ['id', 'location', 'venue_address', 'parking_info', 'postal_code', 'image', 'venue_id']
