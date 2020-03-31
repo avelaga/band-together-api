@@ -1,10 +1,11 @@
 Django==3.0.4
 uwsgi>=2.0
 dj-database-url>=0.5
-psycopg2>=2.8
+psycopg2
 django-cors-headers
 djangorestframework
 markdown
 django-filter
 django-rest-swagger
 spotipy
+virtualenv
