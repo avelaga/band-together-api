@@ -28,7 +28,9 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'localhost',
     '72.182.112.17',
-    '192.168.1.170'
+    '192.168.1.170',
+    'ec2-34-207-91-129.compute-1.amazonaws.com',
+    '34.207.91.129'
 ]
 
 
@@ -127,7 +129,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
