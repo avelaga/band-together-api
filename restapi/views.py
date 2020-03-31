@@ -9,6 +9,9 @@ import requests
 import time
 import json
 import sys
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 '''
 API endpoints for artist
@@ -17,12 +20,35 @@ class ArtistList(generics.ListAPIView):
   queryset = Artist.objects.all()
   serializer_class = ArtistSerializer
 
-class ArtistDetail(generics.RetrieveAPIView):
-    queryset = Artist.objects.all()
+# class ArtistDetail(generics.RetrieveAPIView):
+#     queryset = Artist.objects.all()
+#     serializer_class = ArtistSerializer
+
+
+class ArtistDetail(APIView):
+    queryset= Artist.objects.all()
     serializer_class = ArtistSerializer
 
+    def get_artist(self, pk):
+        try:
+            return Artist.objects.get(pk=pk)
+        except Artist.DoesNotExist:
+            return "Not available"
+    
+    def get_concert(self, artist):
+        concerts = Concert.objects.filter(artist=artist)
+        return list(concerts.order_by('date')[:1])[0]
 
-
+    
+    def get(self, request, pk, format=None):
+        artist = self.get_artist(pk)
+        concert = self.get_concert(artist)
+        venue = concert.venue
+        location = concert.location
+        context = {'nextVenueName': venue.name, 'nextConcertId': concert.id, 'nextLocationName': location.city, 'nextLocationId': location.id}
+        
+        serializer = ArtistSerializer(artist, context=context)
+        return Response(serializer.data)
 
 '''
 API endpoints for locations
@@ -34,6 +60,24 @@ class LocationList(generics.ListAPIView):
 class LocationDetail(generics.RetrieveAPIView):
   queryset = Location.objects.all()
   serializer_class = LocationSerializer
+
+  def get_location(self, pk):
+        return Location.objects.get(pk=pk)
+    
+  def get_concert(self, location):
+        concerts = Concert.objects.filter(location=location)
+        return list(concerts.order_by('date')[:1])[0]
+
+    
+  def get(self, request, pk, format=None):
+        location = self.get_location(pk)
+        concert = self.get_concert(location)
+        venue = concert.venue
+        artist = concert.artist
+        context = {'nextVenueName': venue.name, 'nextConcertId': concert.id, 'nextArtistName': artist.name, 'nextArtistId': artist.id}
+        
+        serializer = LocationSerializer(location, context=context)
+        return Response(serializer.data)
 
 '''
 API endpoints for concerts
