@@ -10,8 +10,14 @@ import time
 import json
 import sys
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 10
 
 '''
 API endpoints for artist
@@ -19,7 +25,6 @@ API endpoints for artist
 class ArtistList(generics.ListAPIView):
   queryset = Artist.objects.all()
   serializer_class = ArtistListSerializer
-
 
 class ArtistDetail(APIView):
     queryset= Artist.objects.all()
@@ -96,6 +101,7 @@ class VenueList(generics.ListAPIView):
 class VenueDetail(generics.RetrieveAPIView):
   queryset = Venue.objects.all()
   serializer_class = VenueSerializer
+
 
 # Calling this function will scrape the API's and load up our database
 def web_scrape():
