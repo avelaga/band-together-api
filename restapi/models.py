@@ -26,6 +26,8 @@ class Location(models.Model):
     elevation = models.IntegerField(null=True)
     image = models.URLField(null=True)
     bio = models.TextField()
+    lat = models.FloatField()
+    lon = models.FloatField()
 
     def __str__(self):
         return self.city
@@ -38,6 +40,8 @@ class Venue(models.Model):
     postal_code = models.CharField(max_length=5, null=True)
     image = models.URLField(null=True)
     venue_id = models.CharField(max_length=100)
+    lat = models.FloatField()
+    lon = models.FloatField()
 
     def __str__(self):
         return self.name

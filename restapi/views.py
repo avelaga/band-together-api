@@ -231,7 +231,9 @@ def getVenue(concert_items, location, venueSet, newVenueSet):
     if 'images' in concert_items['_embedded']['venues'][0]:
         image = concert_items['_embedded']['venues'][0]['images'][0]['url']
     venue_id = concert_items['_embedded']['venues'][0]['id']
-    newVenue = Venue(name=name, location=location, venue_address=address, parking_info=parking_info, postal_code=postalCode, venue_id=venue_id, image=image)
+    lat = float(concert_items['_embedded']['venues'][0]['location']['latitude'])
+    lon = float(concert_items['_embedded']['venues'][0]['location']['longitude'])
+    newVenue = Venue(name=name, location=location, venue_address=address, parking_info=parking_info, postal_code=postalCode, venue_id=venue_id, image=image, lat=lat, lon=lon)
     venueSet.add(name)
     newVenueSet.add(name)
     newVenue.save()
@@ -261,7 +263,9 @@ def getLocation(cityName, citySet):
     cityInfo = r.json()
     image = cityInfo['thumbnail']['source']
     bio = cityInfo['extract']
-    newLocation = Location(city=city, country=country, population=population, timezone=timezone, region=region, elevation=elevation, image=image, bio=bio)
+    lat = cityInfo['coordinates']['lat']
+    lon = cityInfo['coordinates']['lon']
+    newLocation = Location(city=city, country=country, population=population, timezone=timezone, region=region, elevation=elevation, image=image, bio=bio, lat=lat, lon=lon)
     citySet.add(cityName)
     newLocation.save()
     return newLocation

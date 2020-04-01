@@ -85,9 +85,9 @@ class LocationSerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = Location
-    fields = ['id', 'city', 'country', 'population', 'timezone', 'region', 'area_code', 'elevation', 'image', 'bio', 'nextVenueName', 'nextConcertId', 'nextConcertDate', 'nextConcertTime', 'nextArtistName', 'nextArtistId']
+    fields = ['id', 'city', 'country', 'population', 'timezone', 'region', 'area_code', 'elevation', 'image', 'bio', 'nextVenueName', 'nextConcertId', 'nextConcertDate', 'nextConcertTime', 'nextArtistName', 'nextArtistId', 'lat', 'lon']
 
 class VenueSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = Venue
-    fields = ['id', 'location', 'venue_address', 'parking_info', 'postal_code', 'image', 'venue_id']
+    fields = ['id', 'location', 'venue_address', 'parking_info', 'postal_code', 'image', 'venue_id', 'lat', 'lon']
