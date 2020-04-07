@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
 
 '''
 API endpoints for artist
@@ -20,6 +21,21 @@ API endpoints for artist
 class ArtistList(generics.ListAPIView):
   queryset = Artist.objects.all()
   serializer_class = ArtistListSerializer
+
+class ArtistSearch(APIView):
+    queryset = Artist.objects.all()
+    serializer_class = ArtistListSerializer
+
+    def get(self, request, format=None):
+        a = None
+        if 'query' in request.query_params:
+            query = request.query_params['query']
+            qs = Q(name__icontains=query) | Q(genre__icontains=query)
+            a = Artist.objects.filter(qs)
+        else:
+            a = Artist.objects.all()
+        serializer = ArtistListSerializer(a, many=True)
+        return Response(serializer.data)
 
 class ArtistDetail(APIView):
     queryset= Artist.objects.all()
