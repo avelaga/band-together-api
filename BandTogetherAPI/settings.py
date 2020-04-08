@@ -29,7 +29,9 @@ ALLOWED_HOSTS =[
 'ec2-52-202-44-47.compute-1.amazonaws.com',
 '52.202.44.47',
 'localhost',
-'bandtogetherapi.xyz']
+'bandtogetherapi.xyz',
+'172.31.87.164'
+]
 
 
 # Application definition
@@ -137,3 +139,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
+
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SECURE_SSL_REDIRECT = False
