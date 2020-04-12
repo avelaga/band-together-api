@@ -76,7 +76,7 @@ class ArtistDetail(APIView):
             "nextLocationId": location.id,
         }
 
-        serializer = ArtistSerializer(artist, context=context)
+        serializer = self.serializer_class(artist, context=context)
         return Response(serializer.data)
 
 
@@ -113,9 +113,25 @@ class LocationDetail(generics.RetrieveAPIView):
             "nextArtistId": artist.id,
         }
 
-        serializer = LocationSerializer(location, context=context)
+        serializer = self.serializer_class(location, context=context)
         return Response(serializer.data)
 
+class LocationSearch(generics.ListAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationListSerializer
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
+
+    def get(self, request, format=None):
+        a = None
+        if "query" in request.query_params:
+            query = request.query_params["query"]
+            qs = Q(city__icontains=query) | Q(country__icontains=query) | Q(timezone__icontains=query) | Q(bio__icontains=query) | Q(region__icontains=query) | Q(elevation__icontains=query) | Q(population__icontains=query)
+            l = Location.objects.filter(qs)
+        else:
+            l = Location.objects.all()
+        page = self.paginate_queryset(l)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 """
 API endpoints for concerts
@@ -128,7 +144,6 @@ class ConcertList(generics.ListAPIView):
 class ConcertDetail(generics.RetrieveAPIView):
     queryset = Concert.objects.all()
     serializer_class = ConcertSerializer
-
 
 """
 API endpoints for venues
