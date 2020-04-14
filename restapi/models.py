@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Artist(models.Model):
+    object_type = models.CharField(default="Artist", max_length=25)
     name = models.CharField(max_length=50, null=True)
     popularity_score = models.IntegerField(null=True)
     genre = models.CharField(max_length=50, null=True)
@@ -17,6 +18,7 @@ class Artist(models.Model):
         return self.name
 
 class Location(models.Model):
+    object_type = models.CharField(default="Location", max_length=25)
     city = models.CharField(max_length=100, null=True)
     country = models.CharField(max_length=100, null=True)
     population = models.IntegerField(null=True)
@@ -33,6 +35,7 @@ class Location(models.Model):
         return self.city
 
 class Venue(models.Model):
+    object_type = models.CharField(default="Venue", max_length=25)
     name = models.CharField(max_length=100, null=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     venue_address = models.CharField(max_length=100, null=True)
@@ -47,6 +50,7 @@ class Venue(models.Model):
         return self.name
 
 class Concert(models.Model):
+    object_type = models.CharField(default="Concert", max_length=25)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
