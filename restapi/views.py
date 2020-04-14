@@ -29,7 +29,7 @@ def search_artist(query):
     return Q(name__icontains=query) | Q(genre__icontains=query)
 
 def search_concert(query):
-    return Q(date__icontains=query) | Q(time__icontains=query) | Q(ticket_min__icontains=query)
+    return Q(date__icontains=query) | Q(time__icontains=query) | Q(ticket_min__icontains=query) | Q(ticket_max__icontains=query)
 
 def search_location(query):
     return Q(city__icontains=query) | Q(country__icontains=query) | Q(timezone__icontains=query) | Q(bio__icontains=query) | Q(region__icontains=query) | Q(elevation__icontains=query) | Q(population__icontains=query)
@@ -169,10 +169,16 @@ class ConcertSearch(generics.ListAPIView):
         if 'query' in request.query_params:
             query = request.query_params['query']
             cqs = search_concert(query)
+            c_results = Concert.objects.filter(cqs)
             aqs = search_artist(query)
+            for a in Artist.objects.filter(aqs):
+                c_results |= Concert.objects.filter(artist=a)
             lqs = search_location(query)
+            for l in Location.objects.filter(lqs):
+                c_results |= Concert.objects.filter(location=l)
             vqs = search_venue(query)
-            c_results = Concert.objects.filter(cqs) | Concert.objects.filter(aqs) | Concert.objects.filter(lqs) | Concert.objects.filter(vqs)
+            for v in Venue.objects.filter(vqs):
+                c_results |= Concert.objects.filter(venue=v)
         else:
             c_results = Concert.objects.all()
         page = self.paginate_queryset(c_results)
