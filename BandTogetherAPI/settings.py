@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '0-m#@0opjl888&q1y@w##ylpys0)5^xpp$r56g5+(r%2_!cy3='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS =[
 'ec2-52-202-44-47.compute-1.amazonaws.com',
@@ -95,7 +95,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': '',
+        'PASSWORD': 'band-together',
         'HOST': 'band-together-db.cp7swib6datx.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
     }
