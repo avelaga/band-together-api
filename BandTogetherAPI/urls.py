@@ -26,5 +26,9 @@ urlpatterns = [
     path('restapi/artist/<int:pk>', restapiviews.ArtistDetail.as_view(), name='artist-detail'),
     path('restapi/location/<int:pk>', restapiviews.LocationDetail.as_view(), name='location-detail'),
     path('restapi/concert/<int:pk>', restapiviews.ConcertDetail.as_view(), name='concert-detail'),
-    path('restapi/venue/<int:pk>', restapiviews.VenueDetail.as_view(), name='venue-detail')
+    path('restapi/venue/<int:pk>', restapiviews.VenueDetail.as_view(), name='venue-detail'),
+    path('restapi/artist/search', restapiviews.ArtistSearch.as_view(), name='artist-search'),
+    path('restapi/location/search', restapiviews.LocationSearch.as_view(), name='location-search'),
+    path('restapi/concert/search', restapiviews.ConcertSearch.as_view(), name='concert-search'),
+    path('restapi/search', restapiviews.SplashSearch.as_view(), name='splash-search')
 ]

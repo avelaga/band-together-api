@@ -30,8 +30,10 @@ ALLOWED_HOSTS =[
 '52.202.44.47',
 'localhost',
 'bandtogetherapi.xyz',
+'192.168.1.170']
 '172.31.87.164'
 ]
+
 
 
 # Application definition
