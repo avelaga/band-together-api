@@ -50,7 +50,7 @@ class ArtistSearch(generics.ListAPIView):
         a = None
         if "query" in request.query_params:
             query = request.query_params["query"]
-            qs = searchArtist
+            qs = search_artist(query)
             a = Artist.objects.filter(qs)
         else:
             a = Artist.objects.all()
