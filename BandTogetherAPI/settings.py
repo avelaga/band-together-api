@@ -29,7 +29,8 @@ ALLOWED_HOSTS =[
 'ec2-52-202-44-47.compute-1.amazonaws.com',
 '52.202.44.47',
 'localhost',
-'bandtogetherapi.xyz']
+'bandtogetherapi.xyz',
+'192.168.1.170']
 
 
 # Application definition
