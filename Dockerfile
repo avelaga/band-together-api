@@ -4,7 +4,6 @@ RUN mkdir /code/
 WORKDIR /code/
 COPY . /code/
 
-
 ENV PYTHONUNBUFFERED 1
 
 ARG APP_USER=appuser
@@ -42,7 +41,12 @@ RUN set -ex \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY ./Certs/bandtogetherapi_xyz/bandtogetherapi_xyz.crt /etc/apache2/ssl/bandtogetherapi_xyz.crt
+COPY ./Certs/bandtogetherapi_xyz/bandtogether-xyz.key /etc/apache2/ssl/bandtogether-xyz.key
+COPY ./Certs/bandtogetherapi_xyz/bandtogetherapi_xyz.ca-bundle /etc/apache2/ssl/bandtogetherapi_xyz.ca-bundle
+COPY ./default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
 
+RUN a2enmod ssl
 
 RUN echo '. /etc/apache2/envvars' > /root/run_apache.sh && \
  echo 'mkdir -p /var/run/apache2' >> /root/run_apache.sh && \
@@ -51,9 +55,11 @@ RUN echo '. /etc/apache2/envvars' > /root/run_apache.sh && \
  chmod 755 /root/run_apache.sh
 
 EXPOSE 80
+EXPOSE 443
 
 RUN chmod 664 /code/db.sqlite3
 RUN chown :www-data /code
 RUN chown :www-data /code/db.sqlite3
+RUN chown :www-data /code/BandTogetherAPI
 
 CMD /root/run_apache.sh
