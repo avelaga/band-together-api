@@ -26,16 +26,16 @@ from rest_framework.settings import api_settings
 from itertools import chain
 
 def search_artist(query):
-    return Q(name__icontains=query) | Q(genre__icontains=query)
+    return Q(name__icontains=query) | Q(genre__icontains=query) | Q(popularity_score__icontains=query) | Q(num_spotify_followers__icontains=query)
 
 def search_concert(query):
-    return Q(date__icontains=query) | Q(time__icontains=query) | Q(ticket_min__icontains=query) | Q(ticket_max__icontains=query)
+    return Q(date__icontains=query) | Q(ticket_min__icontains=query) | Q(ticket_max__icontains=query)
 
 def search_location(query):
-    return Q(city__icontains=query) | Q(country__icontains=query) | Q(timezone__icontains=query) | Q(bio__icontains=query) | Q(region__icontains=query) | Q(elevation__icontains=query) | Q(population__icontains=query)
+    return Q(city__icontains=query) | Q(timezone__icontains=query) | Q(region__icontains=query) | Q(elevation__icontains=query) | Q(population__icontains=query)
 
 def search_venue(query):
-    return Q(name__icontains=query) | Q(venue_address__icontains=query) | Q(postal_code__icontains=query)
+    return Q(name__icontains=query)
 
 """
 API endpoints for artist
@@ -532,10 +532,12 @@ def getArtist(artistName, sp, artistSet, newArtistSet, concert_items):
 
 def spotifyTest():
     cid = "15b2abfe5a754bdcb5e75cbf056f7985"
-    secret = "a8915649f5bc45e68b231c1732a74b3d"
+    secret = ""
     client_credentials_manager = SpotifyClientCredentials(
         client_id=cid, client_secret=secret
     )
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-    artist = sp.search(q="John Mayer", type="artist", limit=1, offset=0)
+    aid = '16oZKvXb6WkQlVAjwo2Wbg'
+    artist = sp.search(q="The Lumineers", type="artist", limit=1, offset=0)
     print(artist)
+
