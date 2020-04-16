@@ -62,16 +62,21 @@ class ArtistList(generics.ListAPIView):
     queryset = Artist.objects.all()
     serializer_class = ArtistListSerializer
 
-    def get(self, request, format=None):
-        a = None
+    def get_params(self, request):
         params = {
             "popularity_score__gte": int(request.query_params["minPop"]),
             "popularity_score__lte": int(request.query_params["maxPop"]),
             "num_spotify_followers__gte": int(request.query_params["minFollowers"]),
             "num_spotify_followers__lte": int(request.query_params["maxFollowers"]),
         }
-        if len(request.query_params["genre"]) > 0:
-            params.update({"genre__icontains": request.query_params["genre"]})
+        
+        return params
+
+
+    def get(self, request, format=None):
+        a = None
+        params = self.get_params(request)
+    
         if len(request.query_params["query"]) > 0:
             query = request.query_params["query"]
             qs = search_artist(query)
@@ -146,6 +151,39 @@ API endpoints for locations
 class LocationList(generics.ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationListSerializer
+
+    def get_params(self, request):
+        params = {
+            "elevation__gte": int(request.query_params["minElevation"]),
+            "elevation__lte": int(request.query_params["maxElevation"]),
+            "population__gte": int(request.query_params["minPopulation"]),
+            "population__lte": int(request.query_params["maxPopulation"]),
+        }
+
+        if len(request.query_params["timezone"]) > 0:
+            params.update({"timezone": request.query_params["timezone"]})
+        
+        return params
+
+    def get(self, request, format=None):
+        l = None
+        params = self.get_params(request)
+    
+        if len(request.query_params["query"]) > 0:
+            query = request.query_params["query"]
+            qs = search_location(query)
+            l = Location.objects.filter(qs)
+            l = l.filter(**params)
+        else:
+            l = Location.objects.all()
+            l = l.filter(**params)
+
+        asc = request.query_params["sortBy"]
+        if request.query_params["ascending"] == "-1":
+            asc = "-" + asc
+        page = self.paginate_queryset(l.order_by(asc))
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class LocationDetail(generics.RetrieveAPIView):
