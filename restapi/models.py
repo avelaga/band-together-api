@@ -17,6 +17,15 @@ class Artist(models.Model):
     def __str__(self):
         return self.name
 
+    def __lt__(self, other):
+        return self.name < other.name
+    
+    def __gt__(self, other):
+        return self.name > other.name
+    
+    def __eq__(self, other):
+        return self.name == other.name
+
 class Location(models.Model):
     object_type = models.CharField(default="Location", max_length=25)
     city = models.CharField(max_length=100, null=True)
@@ -34,6 +43,15 @@ class Location(models.Model):
     def __str__(self):
         return self.city
 
+    def __lt__(self, other):
+        return self.city < other.city
+    
+    def __gt__(self, other):
+        return self.city > other.city
+    
+    def __eq__(self, other):
+        return self.city == other.city
+
 class Venue(models.Model):
     object_type = models.CharField(default="Venue", max_length=25)
     name = models.CharField(max_length=100, null=True)
@@ -48,6 +66,15 @@ class Venue(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __lt__(self, other):
+        return self.name < other.name
+    
+    def __gt__(self, other):
+        return self.name > other.name
+    
+    def __eq__(self, other):
+        return self.name == other.name
 
 class Concert(models.Model):
     object_type = models.CharField(default="Concert", max_length=25)

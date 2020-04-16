@@ -159,9 +159,6 @@ class LocationList(generics.ListAPIView):
             "population__gte": int(request.query_params["minPopulation"]),
             "population__lte": int(request.query_params["maxPopulation"]),
         }
-
-        if len(request.query_params["timezone"]) > 0:
-            params.update({"timezone": request.query_params["timezone"]})
         
         return params
 
@@ -240,6 +237,44 @@ API endpoints for concerts
 class ConcertList(generics.ListAPIView):
     queryset = Concert.objects.all()
     serializer_class = ConcertSerializer
+
+    def get_params(self, request):
+        params = {
+            "ticket_min__gte": int(request.query_params["minTicket"]),
+            "ticket_max__lte": int(request.query_params["maxTicket"])
+        }
+        
+        return params
+
+
+    def get(self, request, format=None):
+        c = None
+        params = self.get_params(request)
+    
+        if len(request.query_params["query"]) > 0:
+            query = request.query_params["query"]
+            cqs = search_concert(query)
+            c = Concert.objects.filter(cqs)
+            aqs = search_artist(query)
+            for a in Artist.objects.filter(aqs):
+                c |= Concert.objects.filter(artist=a)
+            lqs = search_location(query)
+            for l in Location.objects.filter(lqs):
+                c |= Concert.objects.filter(location=l)
+            vqs = search_venue(query)
+            for v in Venue.objects.filter(vqs):
+                c |= Concert.objects.filter(venue=v)
+        else:
+            c = Concert.objects.all()
+            c = c.filter(**params)
+
+        asc = request.query_params["sortBy"]
+        if request.query_params["ascending"] == "-1":
+            asc = "-" + asc
+        page = self.paginate_queryset(c.order_by(asc))
+        serializer = self.serializer_class(page, many=True, context={'request': request})
+        return self.get_paginated_response(serializer.data)
+
 
 
 class ConcertDetail(generics.RetrieveAPIView):
