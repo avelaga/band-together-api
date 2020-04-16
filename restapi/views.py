@@ -54,10 +54,8 @@ class ArtistSearch(generics.ListAPIView):
             a = Artist.objects.filter(qs)
         else:
             a = Artist.objects.all()
-        page = self.paginate_queryset(a)
-        serializer = self.serializer_class(page, many=True)
-        print(type(serializer.data))
-        return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(a, many=True)
+        return Response(serializer.data)
 
 class ArtistDetail(APIView):
     queryset = Artist.objects.all()
@@ -140,9 +138,8 @@ class LocationSearch(generics.ListAPIView):
             l = Location.objects.filter(qs)
         else:
             l = Location.objects.all()
-        page = self.paginate_queryset(l)
-        serializer = self.serializer_class(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(l, many=True)
+        return Response(serializer.data)
 
 """
 API endpoints for concerts
@@ -177,11 +174,9 @@ class ConcertSearch(generics.ListAPIView):
                 c_results |= Concert.objects.filter(venue=v)
         else:
             c_results = Concert.objects.all()
-        page = self.paginate_queryset(c_results)
-        serializer = self.serializer_class(page, many=True, context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(c_results, many=True, context={'request': request})
+        return Response(serializer.data)
         
-
 """
 API endpoints for venues
 """
@@ -193,15 +188,3 @@ class VenueList(generics.ListAPIView):
 class VenueDetail(generics.RetrieveAPIView):
     queryset = Venue.objects.all()
     serializer_class = VenueSerializer
-
-"""
-API endpoints for splash
-"""
-class SplashSearch(generics.ListAPIView):
-    def get(self, request, format=None):
-        a = Artist.objects.all()
-        l = Location.objects.all()
-        c = Concert.objects.all()
-        joined_collection = list(chain(a, l, c))
-        json = serializers.serialize('json', joined_collection)
-        return Response(joined_collection)

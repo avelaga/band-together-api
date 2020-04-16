@@ -30,5 +30,4 @@ urlpatterns = [
     path('restapi/artist/search', restapiviews.ArtistSearch.as_view(), name='artist-search'),
     path('restapi/location/search', restapiviews.LocationSearch.as_view(), name='location-search'),
     path('restapi/concert/search', restapiviews.ConcertSearch.as_view(), name='concert-search'),
-    path('restapi/search', restapiviews.SplashSearch.as_view(), name='splash-search')
 ]
