@@ -10,10 +10,11 @@ class ConcertSerializer(serializers.HyperlinkedModelSerializer):
   artistImage = serializers.ReadOnlyField(source='artist.image')
   venueImage = serializers.ReadOnlyField(source='venue.image')
   venueName = serializers.ReadOnlyField(source='venue.name')
+  region = serializers.ReadOnlyField(source='location.region')
   
   class Meta:
     model = Concert
-    fields = ['id', 'object_type', 'artist', 'location', 'venue', 'date', 'time', 'ticket_min', 'ticket_max', 'artistName', 'artistGenre', 'locationName', 'artistId', 'locationId', 'artistImage', 'venueImage', 'venueName']
+    fields = ['id', 'object_type', 'artist', 'location', 'venue', 'date', 'time', 'ticket_min', 'ticket_max', 'artistName', 'artistGenre', 'locationName', 'artistId', 'locationId', 'artistImage', 'venueImage', 'venueName', 'region']
 
 class ArtistListSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:

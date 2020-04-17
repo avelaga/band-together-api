@@ -30,6 +30,8 @@ def search_artist(query):
         | Q(num_spotify_followers__icontains=query)
     )
 
+def search_concert_artist(query):
+    return Q(name__icontains=query) | Q(genre__icontains=query)
 
 def search_concert(query):
     return (
@@ -48,6 +50,8 @@ def search_location(query):
         | Q(population__icontains=query)
     )
 
+def search_concert_location(query):
+    return Q(city__icontains=query) | Q(region__icontains=query)
 
 def search_venue(query):
     return Q(name__icontains=query)
@@ -255,10 +259,10 @@ class ConcertList(generics.ListAPIView):
             query = request.query_params["query"]
             cqs = search_concert(query)
             c = Concert.objects.filter(cqs)
-            aqs = search_artist(query)
+            aqs = search_concert_artist(query)
             for a in Artist.objects.filter(aqs):
                 c |= Concert.objects.filter(artist=a)
-            lqs = search_location(query)
+            lqs = search_concert_location(query)
             for l in Location.objects.filter(lqs):
                 c |= Concert.objects.filter(location=l)
             vqs = search_venue(query)
@@ -292,10 +296,10 @@ class ConcertSearch(generics.ListAPIView):
             query = request.query_params["query"]
             cqs = search_concert(query)
             c_results = Concert.objects.filter(cqs)
-            aqs = search_artist(query)
+            aqs = search_concert_artist(query)
             for a in Artist.objects.filter(aqs):
                 c_results |= Concert.objects.filter(artist=a)
-            lqs = search_location(query)
+            lqs = search_concert_location(query)
             for l in Location.objects.filter(lqs):
                 c_results |= Concert.objects.filter(location=l)
             vqs = search_venue(query)
