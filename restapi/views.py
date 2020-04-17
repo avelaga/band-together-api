@@ -21,24 +21,77 @@ from django.db.models import Q
 from rest_framework.settings import api_settings
 from itertools import chain
 
+
 def search_artist(query):
-    return Q(name__icontains=query) | Q(genre__icontains=query) | Q(popularity_score__icontains=query) | Q(num_spotify_followers__icontains=query)
+    return (
+        Q(name__icontains=query)
+        | Q(genre__icontains=query)
+        | Q(popularity_score__icontains=query)
+        | Q(num_spotify_followers__icontains=query)
+    )
+
 
 def search_concert(query):
-    return Q(date__icontains=query) | Q(ticket_min__icontains=query) | Q(ticket_max__icontains=query)
+    return (
+        Q(date__icontains=query)
+        | Q(ticket_min__icontains=query)
+        | Q(ticket_max__icontains=query)
+    )
+
 
 def search_location(query):
-    return Q(city__icontains=query) | Q(timezone__icontains=query) | Q(region__icontains=query) | Q(elevation__icontains=query) | Q(population__icontains=query)
+    return (
+        Q(city__icontains=query)
+        | Q(timezone__icontains=query)
+        | Q(region__icontains=query)
+        | Q(elevation__icontains=query)
+        | Q(population__icontains=query)
+    )
+
 
 def search_venue(query):
     return Q(name__icontains=query)
 
+
 """
 API endpoints for artist
 """
+
+
 class ArtistList(generics.ListAPIView):
     queryset = Artist.objects.all()
     serializer_class = ArtistListSerializer
+
+    def get_params(self, request):
+        params = {
+            "popularity_score__gte": int(request.query_params["minPop"]),
+            "popularity_score__lte": int(request.query_params["maxPop"]),
+            "num_spotify_followers__gte": int(request.query_params["minFollowers"]),
+            "num_spotify_followers__lte": int(request.query_params["maxFollowers"]),
+        }
+        
+        return params
+
+
+    def get(self, request, format=None):
+        a = None
+        params = self.get_params(request)
+    
+        if len(request.query_params["query"]) > 0:
+            query = request.query_params["query"]
+            qs = search_artist(query)
+            a = Artist.objects.filter(qs)
+            a = a.filter(**params)
+        else:
+            a = Artist.objects.all()
+            a = a.filter(**params)
+
+        asc = request.query_params["sortBy"]
+        if request.query_params["ascending"] == "-1":
+            asc = "-" + asc
+        page = self.paginate_queryset(a.order_by(asc))
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class ArtistSearch(generics.ListAPIView):
@@ -54,10 +107,9 @@ class ArtistSearch(generics.ListAPIView):
             a = Artist.objects.filter(qs)
         else:
             a = Artist.objects.all()
-        page = self.paginate_queryset(a)
-        serializer = self.serializer_class(page, many=True)
-        print(type(serializer.data))
-        return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(a, many=True)
+        return Response(serializer.data)
+
 
 class ArtistDetail(APIView):
     queryset = Artist.objects.all()
@@ -94,9 +146,41 @@ class ArtistDetail(APIView):
 """
 API endpoints for locations
 """
+
+
 class LocationList(generics.ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationListSerializer
+
+    def get_params(self, request):
+        params = {
+            "elevation__gte": int(request.query_params["minElevation"]),
+            "elevation__lte": int(request.query_params["maxElevation"]),
+            "population__gte": int(request.query_params["minPopulation"]),
+            "population__lte": int(request.query_params["maxPopulation"]),
+        }
+        
+        return params
+
+    def get(self, request, format=None):
+        l = None
+        params = self.get_params(request)
+    
+        if len(request.query_params["query"]) > 0:
+            query = request.query_params["query"]
+            qs = search_location(query)
+            l = Location.objects.filter(qs)
+            l = l.filter(**params)
+        else:
+            l = Location.objects.all()
+            l = l.filter(**params)
+
+        asc = request.query_params["sortBy"]
+        if request.query_params["ascending"] == "-1":
+            asc = "-" + asc
+        page = self.paginate_queryset(l.order_by(asc))
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class LocationDetail(generics.RetrieveAPIView):
@@ -127,6 +211,7 @@ class LocationDetail(generics.RetrieveAPIView):
         serializer = self.serializer_class(location, context=context)
         return Response(serializer.data)
 
+
 class LocationSearch(generics.ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationListSerializer
@@ -140,21 +225,62 @@ class LocationSearch(generics.ListAPIView):
             l = Location.objects.filter(qs)
         else:
             l = Location.objects.all()
-        page = self.paginate_queryset(l)
-        serializer = self.serializer_class(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(l, many=True)
+        return Response(serializer.data)
+
 
 """
 API endpoints for concerts
 """
+
+
 class ConcertList(generics.ListAPIView):
     queryset = Concert.objects.all()
     serializer_class = ConcertSerializer
+
+    def get_params(self, request):
+        params = {
+            "ticket_min__gte": int(request.query_params["minTicket"]),
+            "ticket_max__lte": int(request.query_params["maxTicket"])
+        }
+        
+        return params
+
+
+    def get(self, request, format=None):
+        c = None
+        params = self.get_params(request)
+    
+        if len(request.query_params["query"]) > 0:
+            query = request.query_params["query"]
+            cqs = search_concert(query)
+            c = Concert.objects.filter(cqs)
+            aqs = search_artist(query)
+            for a in Artist.objects.filter(aqs):
+                c |= Concert.objects.filter(artist=a)
+            lqs = search_location(query)
+            for l in Location.objects.filter(lqs):
+                c |= Concert.objects.filter(location=l)
+            vqs = search_venue(query)
+            for v in Venue.objects.filter(vqs):
+                c |= Concert.objects.filter(venue=v)
+        else:
+            c = Concert.objects.all()
+            c = c.filter(**params)
+
+        asc = request.query_params["sortBy"]
+        if request.query_params["ascending"] == "-1":
+            asc = "-" + asc
+        page = self.paginate_queryset(c.order_by(asc))
+        serializer = self.serializer_class(page, many=True, context={'request': request})
+        return self.get_paginated_response(serializer.data)
+
 
 
 class ConcertDetail(generics.RetrieveAPIView):
     queryset = Concert.objects.all()
     serializer_class = ConcertSerializer
+
 
 class ConcertSearch(generics.ListAPIView):
     queryset = Concert.objects.all()
@@ -162,8 +288,8 @@ class ConcertSearch(generics.ListAPIView):
 
     def get(self, request, format=None):
         c_results = None
-        if 'query' in request.query_params:
-            query = request.query_params['query']
+        if "query" in request.query_params:
+            query = request.query_params["query"]
             cqs = search_concert(query)
             c_results = Concert.objects.filter(cqs)
             aqs = search_artist(query)
@@ -177,14 +303,17 @@ class ConcertSearch(generics.ListAPIView):
                 c_results |= Concert.objects.filter(venue=v)
         else:
             c_results = Concert.objects.all()
-        page = self.paginate_queryset(c_results)
-        serializer = self.serializer_class(page, many=True, context={'request': request})
-        return self.get_paginated_response(serializer.data)
-        
+        serializer = self.serializer_class(
+            c_results, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
+
 
 """
 API endpoints for venues
 """
+
+
 class VenueList(generics.ListAPIView):
     queryset = Venue.objects.all()
     serializer_class = VenueSerializer
@@ -193,15 +322,3 @@ class VenueList(generics.ListAPIView):
 class VenueDetail(generics.RetrieveAPIView):
     queryset = Venue.objects.all()
     serializer_class = VenueSerializer
-
-"""
-API endpoints for splash
-"""
-class SplashSearch(generics.ListAPIView):
-    def get(self, request, format=None):
-        a = Artist.objects.all()
-        l = Location.objects.all()
-        c = Concert.objects.all()
-        joined_collection = list(chain(a, l, c))
-        json = serializers.serialize('json', joined_collection)
-        return Response(joined_collection)

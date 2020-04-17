@@ -13,9 +13,19 @@ class Artist(models.Model):
     website = models.URLField(null=True)
     twitter_url = models.URLField(null=True)
     wiki_url = models.URLField(null=True)
+    bio = models.TextField(default="There was nothing so VERY remarkable in that; nor did Alice think it so VERY much out of the way to hear the Rabbit say to itself, 'Oh dear! Oh dear! I shall be late!' (when she thought it over afterwards, it occurred to her that she ought to have wondered at this, but at the time it all seemed quite natural); but when the Rabbit actually TOOK A WATCH OUT OF ITS WAISTCOAT-POCKET, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it, and burning with curiosity, she ran across the field after it, and fortunately was just in time to see it pop down a large rabbit-hole under the hedge.")
 
     def __str__(self):
         return self.name
+
+    def __lt__(self, other):
+        return self.name < other.name
+    
+    def __gt__(self, other):
+        return self.name > other.name
+    
+    def __eq__(self, other):
+        return self.name == other.name
 
 class Location(models.Model):
     object_type = models.CharField(default="Location", max_length=25)
@@ -34,6 +44,15 @@ class Location(models.Model):
     def __str__(self):
         return self.city
 
+    def __lt__(self, other):
+        return self.city < other.city
+    
+    def __gt__(self, other):
+        return self.city > other.city
+    
+    def __eq__(self, other):
+        return self.city == other.city
+
 class Venue(models.Model):
     object_type = models.CharField(default="Venue", max_length=25)
     name = models.CharField(max_length=100, null=True)
@@ -48,6 +67,15 @@ class Venue(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __lt__(self, other):
+        return self.name < other.name
+    
+    def __gt__(self, other):
+        return self.name > other.name
+    
+    def __eq__(self, other):
+        return self.name == other.name
 
 class Concert(models.Model):
     object_type = models.CharField(default="Concert", max_length=25)
