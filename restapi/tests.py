@@ -6,6 +6,9 @@ import restapi.scrape as scrape
 import restapi.models as models
 import restapi.views as views
 from rest_framework.views import APIView
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+
 
 import restapi.serializers as serializer
 
@@ -95,95 +98,104 @@ class MyUnitTests (TestCase) :
         self.assert_("www." and ".co" in retrieved_artist.website)
 
 
-
-###CONCERTS###
     def test11 (self) :
         # Check if concert with ID = 123 is a Chicago concert
         concert_id = 123
-        concert_detail = views.ConcertDetail().serializer_class
-        concert_fields = concert_detail.Meta.fields
-        self.assert_('artist' in concert_fields)
-
+        concert_detail = models.Concert.objects.get(pk=concert_id)
+        self.assertEqual(concert_detail.artist.name, "Chicago")
 
     def test12 (self) :
-        # Check if 2 Chainz has correct genre
-        # concert_id = 123
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        # Check if concert with ID = 123 is in Dallas
+       concert_id = 123
+       concert_detail = models.Concert.objects.get(pk=concert_id)
+       self.assertEqual(concert_detail.location.city, "Dallas")
 
     def test13 (self) :
-        # Check if 2 Chainz has a website available
-        # concert_id = 123
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
-
+        # Check retrieval of concerts in city with pk 1
+        location_id = 1
+        location_detail = views.LocationDetail()
+        retrieved_location = location_detail.get_location(location_id)
+        retrieved_concerts = location_detail.get_concert(retrieved_location)
+        self.assert_(type(retrieved_concerts) is models.Concert)
 
     def test14 (self) :
-        # Check if concert with ID = 1 is Tame Impala
-        # concert_id = 1
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        # Check current number of concert instances 
+        concert_detail = views.ConcertDetail()
+        retrieved_concerts = models.Concert.objects.all()
+        self.assertEqual(len(retrieved_concerts), 877)
 
 
     def test15 (self) :
-       # Check if Tame Impala has correct genre
-        # concert_id = 1
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+       # Check if Location with pk 12 is Miami
+        location_id = 12
+        location_detail = views.LocationDetail()
+        retrieved_location = location_detail.get_location(location_id)
+        self.assertEqual(retrieved_location.city, "Miami")
+
 
     def test16 (self) :
-        # Check if Tame Impala has a website available
-        # concert_id = 1
-        # concert_detail = views.ConcertDetail()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        # Check if next artist playing in Miami is correct
+        location_id = 12
+        location_detail = views.LocationDetail()
+        retrieved_location = location_detail.get_location(location_id)
+        views_timezone = retrieved_location.timezone
+        direct_access_timezone = models.Location.objects.get(pk=location_id).timezone
+        self.assertEqual(views_timezone ,direct_access_timezone)
 
-###LOCATIONS###
     def test17 (self) :
-        # Check if artist with ID = 123 is 2 Chainz
-        # concert_id = 123
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        # Check if genre from concert is correct
+        concert_id = 123
+        concert_detail = models.Concert.objects.get(pk=concert_id)
+        concert_genre = concert_detail.artist.genre
+        self.assertEqual(concert_genre, "adult standards")
+
+
 
     def test18 (self) :
-        # Check if 2 Chainz has correct genre
-        # concert_id = 123
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        #check invalid artist
+        cid = "15b2abfe5a754bdcb5e75cbf056f7985"
+        secret = "596d5d4c5ee84749ae4e67de0f0dd079"
+        client_credentials_manager = SpotifyClientCredentials(
+            client_id=cid, client_secret=secret
+        )
+        sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+        with self.assertRaises(Exception) as cm:
+            scrape.getArtist("SWE", sp , artistSet= set(),newArtistSet= set(), concert_items= set())
+        err = cm.exception
+        self.assertEqual(str(err), "Bad Request")
 
     def test19 (self) :
-        # Check if 2 Chainz has a website available
-        # concert_id = 123
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        #check invalid loc
+
+        with self.assertRaises(Exception) as cm:
+            scrape.getLocation("sesame street", citySet = set())
+        err = cm.exception
+        self.assertEqual(str(err), "list index out of range")
+
 
     def test20 (self) :
-        # Check if concert with ID = 1 is Tame Impala
-        # concert_id = 1
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        # Check invalid loc
+ 
+        with self.assertRaises(Exception) as cm:
+            scrape.getLocation("Abu Dhabi", citySet = set())
+        err = cm.exception
+        self.assertEqual(str(err), "Not in USA")
+
 
     def test21 (self) :
-        # Check if Tame Impala has correct genre
-        # concert_id = 1
-        # concert_detail = views.ConcertSearch()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        # Check if venue lat long is correct
+        venue_id = 13
+        venue_detail = models.Venue.objects.get(pk=venue_id)
+        venue_lat = venue_detail.lat
+        venue_long = venue_detail.lon
+        self.assertEqual((venue_lat, venue_long), (43.04228, -87.916896))
+
 
     def test22 (self) :
-        # Check if Tame Impala has a website available
-        # concert_id = 1
-        # concert_detail = views.ConcertDetail()
-        # retrieved_concert = concert_detail.get_concert(concert_id)
-        self.assertEqual(1,1)
+        # Check if venue addr is correct
+        venue_id = 123
+        venue_detail = models.Venue.objects.get(pk=venue_id)
+        self.assertEqual(venue_detail.venue_address, "347 Don Shula Drive")
 
 
 
