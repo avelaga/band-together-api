@@ -67,21 +67,29 @@ class ArtistList(generics.ListAPIView):
     serializer_class = ArtistListSerializer
 
     def get_params(self, request):
-        params = {
-            "popularity_score__gte": int(request.query_params["minPop"]),
-            "popularity_score__lte": int(request.query_params["maxPop"]),
-            "num_spotify_followers__gte": int(request.query_params["minFollowers"]),
-            "num_spotify_followers__lte": int(request.query_params["maxFollowers"]),
-        }
+        params = {}
         
+        if 'minPop' in request.query_params:
+            params.update({"popularity_score__gte": int(request.query_params["minPop"])})
+        if 'maxPop' in request.query_params:
+            params.update({"popularity_score__lte": int(request.query_params["maxPop"])})
+        if 'minFollowers' in request.query_params:
+            params.update({"num_spotify_followers__gte": int(request.query_params["minFollowers"])})
+        if 'maxFollowers' in request.query_params:
+            params.update({"num_spotify_followers__lte": int(request.query_params["maxFollowers"])})
         return params
 
 
     def get(self, request, format=None):
         a = None
         params = self.get_params(request)
+        sortBy = 'name'
+        if 'sortBy' in request.query_params:
+            sortBy = request.query_params['sortBy']
+        if 'asc' in request.query_params and request.query_params['asc'] == '-1':
+            sortBy = '-' + sortBy
     
-        if len(request.query_params["query"]) > 0:
+        if 'query' in request.query_params:
             query = request.query_params["query"]
             qs = search_artist(query)
             a = Artist.objects.filter(qs)
@@ -90,10 +98,8 @@ class ArtistList(generics.ListAPIView):
             a = Artist.objects.all()
             a = a.filter(**params)
 
-        asc = request.query_params["sortBy"]
-        if request.query_params["ascending"] == "-1":
-            asc = "-" + asc
-        page = self.paginate_queryset(a.order_by(asc))
+        
+        page = self.paginate_queryset(a.order_by(sortBy))
         serializer = self.serializer_class(page, many=True)
         return self.get_paginated_response(serializer.data)
 
@@ -157,20 +163,28 @@ class LocationList(generics.ListAPIView):
     serializer_class = LocationListSerializer
 
     def get_params(self, request):
-        params = {
-            "elevation__gte": int(request.query_params["minElevation"]),
-            "elevation__lte": int(request.query_params["maxElevation"]),
-            "population__gte": int(request.query_params["minPopulation"]),
-            "population__lte": int(request.query_params["maxPopulation"]),
-        }
+        params = {}
         
+        if 'minElevation' in request.query_params:
+            params.update({"elevation__gte": int(request.query_params["minElevation"])})
+        if 'maxElevation' in request.query_params:
+            params.update({"elevation__lte": int(request.query_params["maxElevation"])})
+        if 'minPopulation' in request.query_params:
+            params.update({"population__gte": int(request.query_params["minPopulation"])})
+        if 'maxPopulation' in request.query_params:
+            params.update({"population__lte": int(request.query_params["maxPopulation"])})
         return params
 
     def get(self, request, format=None):
         l = None
         params = self.get_params(request)
-    
-        if len(request.query_params["query"]) > 0:
+        sortBy = 'city'
+        if 'sortBy' in request.query_params:
+            sortBy = request.query_params['sortBy']
+        if 'asc' in request.query_params and request.query_params['asc'] == '-1':
+            sortBy = '-' + sortBy
+
+        if 'query' in request.query_params:
             query = request.query_params["query"]
             qs = search_location(query)
             l = Location.objects.filter(qs)
@@ -179,10 +193,7 @@ class LocationList(generics.ListAPIView):
             l = Location.objects.all()
             l = l.filter(**params)
 
-        asc = request.query_params["sortBy"]
-        if request.query_params["ascending"] == "-1":
-            asc = "-" + asc
-        page = self.paginate_queryset(l.order_by(asc))
+        page = self.paginate_queryset(l.order_by(sortBy))
         serializer = self.serializer_class(page, many=True)
         return self.get_paginated_response(serializer.data)
 
@@ -243,10 +254,12 @@ class ConcertList(generics.ListAPIView):
     serializer_class = ConcertSerializer
 
     def get_params(self, request):
-        params = {
-            "ticket_min__gte": int(request.query_params["minTicket"]),
-            "ticket_max__lte": int(request.query_params["maxTicket"])
-        }
+        params = {}
+
+        if 'minTicket' in request.query_params:
+            params.update({"ticket_min__gte": int(request.query_params["minTicket"])})
+        if 'maxTicket' in request.query_params:
+            params.update({"ticket_max__lte": int(request.query_params["maxTicket"])})
         
         return params
 
@@ -254,8 +267,13 @@ class ConcertList(generics.ListAPIView):
     def get(self, request, format=None):
         c = None
         params = self.get_params(request)
-    
-        if len(request.query_params["query"]) > 0:
+        sortBy = 'artist__name'
+        if 'sortBy' in request.query_params:
+            sortBy = request.query_params['sortBy']
+        if 'asc' in request.query_params and request.query_params['asc'] == '-1':
+            sortBy = '-' + sortBy
+
+        if 'query' in request.query_params:
             query = request.query_params["query"]
             cqs = search_concert(query)
             c = Concert.objects.filter(cqs)
@@ -272,10 +290,7 @@ class ConcertList(generics.ListAPIView):
             c = Concert.objects.all()
             c = c.filter(**params)
 
-        asc = request.query_params["sortBy"]
-        if request.query_params["ascending"] == "-1":
-            asc = "-" + asc
-        page = self.paginate_queryset(c.order_by(asc))
+        page = self.paginate_queryset(c.order_by(sortBy))
         serializer = self.serializer_class(page, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
