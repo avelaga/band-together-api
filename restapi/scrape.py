@@ -128,9 +128,6 @@ def web_scrape():
     print("Time in seconds: " + str(tok - tik))
 
 
-# exec(open("script.py").read())
-
-
 def getConcert(
     concert_items,
     given,
@@ -339,16 +336,3 @@ def getArtist(artistName, sp, artistSet, newArtistSet, concert_items):
     newArtistSet.add(name)
     newArtist.save()
     return newArtist
-
-# exec(open("script.py").read())
-
-def spotifyTest():
-    cid = "15b2abfe5a754bdcb5e75cbf056f7985"
-    secret = ""
-    client_credentials_manager = SpotifyClientCredentials(
-        client_id=cid, client_secret=secret
-    )
-    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-    aid = '16oZKvXb6WkQlVAjwo2Wbg'
-    artist = sp.search(q="The Lumineers", type="artist", limit=1, offset=0)
-    print(artist)

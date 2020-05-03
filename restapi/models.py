@@ -90,8 +90,3 @@ class Concert(models.Model):
 
     def __str__(self):
         return self.artist.name + " at " + self.venue.name
-
-class Album(models.Model):
-    name = models.CharField(max_length=100, null=True)
-    year = models.CharField(max_length=4, null=True)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
