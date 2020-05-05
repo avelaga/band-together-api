@@ -1,7 +1,6 @@
 from django.shortcuts import render
-from .models import Concert, Artist, Location, Album, Venue
 from rest_framework import generics
-from .models import Concert, Artist, Location, Album, Venue
+from .models import Concert, Artist, Location, Venue
 from .serializers import (
     ConcertSerializer,
     ArtistSerializer,

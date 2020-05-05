@@ -1,5 +1,4 @@
-from .models import Concert, Artist, Location, Album, Venue
-from .models import Concert, Artist, Location, Album, Venue
+from .models import Concert, Artist, Location, Venue
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
