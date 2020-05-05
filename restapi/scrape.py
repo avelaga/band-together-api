@@ -17,7 +17,7 @@ def web_scrape():
     newVenueSet = set()
 
     cid = "15b2abfe5a754bdcb5e75cbf056f7985"
-    secret = "0b9d36d4daf941eb92b6d8559b25d949"
+    secret = ""
     ticketmaster_cid = "oBmSAafLPLFBbfAJFhN39CLjJcIHOP1N"
     client_credentials_manager = SpotifyClientCredentials(
         client_id=cid, client_secret=secret
@@ -305,19 +305,29 @@ def getArtist(artistName, sp, artistSet, newArtistSet, concert_items):
             website = concert_items["_embedded"]["attractions"][0]["externalLinks"][
                 "homepage"
             ][0]["url"]
-    aurl = "https://en.wikipedia.org/api/rest_v1/page/summary/" + name.replace(" ", "_") + "_(band)"
+    aurl = (
+        "https://en.wikipedia.org/api/rest_v1/page/summary/"
+        + name.replace(" ", "_")
+        + "_(band)"
+    )
     a = requests.get(aurl)
     aInfo = a.json()
-    if aInfo['title'] == "Not found.":
-        aurl = "https://en.wikipedia.org/api/rest_v1/page/summary/" + name.replace(" ", "_") + "_(musician)"
+    if aInfo["title"] == "Not found.":
+        aurl = (
+            "https://en.wikipedia.org/api/rest_v1/page/summary/"
+            + name.replace(" ", "_")
+            + "_(musician)"
+        )
         a = requests.get(aurl)
         aInfo = a.json()
-        if aInfo['title'] == "Not found.":
-            aurl = "https://en.wikipedia.org/api/rest_v1/page/summary/" + name.replace(" ", "_")
+        if aInfo["title"] == "Not found.":
+            aurl = "https://en.wikipedia.org/api/rest_v1/page/summary/" + name.replace(
+                " ", "_"
+            )
             a = requests.get(aurl)
             aInfo = a.json()
     bio = None
-    if 'extract' in aInfo:
+    if "extract" in aInfo:
         bio = aInfo["extract"]
     newArtist = Artist(
         name=name,
@@ -329,7 +339,7 @@ def getArtist(artistName, sp, artistSet, newArtistSet, concert_items):
         twitter_url=twitter_url,
         wiki_url=wiki_url,
         website=website,
-        bio=bio
+        bio=bio,
     )
     artistSet.add(name)
     newArtistSet.add(name)

@@ -18,16 +18,44 @@ from django.urls import path
 from restapi import views as restapiviews
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('restapi/artist', restapiviews.ArtistList.as_view(), name='artist-list'),
-    path('restapi/location', restapiviews.LocationList.as_view(), name='location-list'),
-    path('restapi/concert', restapiviews.ConcertList.as_view(), name='concert-list'),
-    path('restapi/venue', restapiviews.VenueList.as_view(), name='venue-list'),
-    path('restapi/artist/<int:pk>', restapiviews.ArtistDetail.as_view(), name='artist-detail'),
-    path('restapi/location/<int:pk>', restapiviews.LocationDetail.as_view(), name='location-detail'),
-    path('restapi/concert/<int:pk>', restapiviews.ConcertDetail.as_view(), name='concert-detail'),
-    path('restapi/venue/<int:pk>', restapiviews.VenueDetail.as_view(), name='venue-detail'),
-    path('restapi/artist/search', restapiviews.ArtistSearch.as_view(), name='artist-search'),
-    path('restapi/location/search', restapiviews.LocationSearch.as_view(), name='location-search'),
-    path('restapi/concert/search', restapiviews.ConcertSearch.as_view(), name='concert-search'),
+    path("admin/", admin.site.urls),
+    path("restapi/artist", restapiviews.ArtistList.as_view(), name="artist-list"),
+    path("restapi/location", restapiviews.LocationList.as_view(), name="location-list"),
+    path("restapi/concert", restapiviews.ConcertList.as_view(), name="concert-list"),
+    path("restapi/venue", restapiviews.VenueList.as_view(), name="venue-list"),
+    path(
+        "restapi/artist/<int:pk>",
+        restapiviews.ArtistDetail.as_view(),
+        name="artist-detail",
+    ),
+    path(
+        "restapi/location/<int:pk>",
+        restapiviews.LocationDetail.as_view(),
+        name="location-detail",
+    ),
+    path(
+        "restapi/concert/<int:pk>",
+        restapiviews.ConcertDetail.as_view(),
+        name="concert-detail",
+    ),
+    path(
+        "restapi/venue/<int:pk>",
+        restapiviews.VenueDetail.as_view(),
+        name="venue-detail",
+    ),
+    path(
+        "restapi/artist/search",
+        restapiviews.ArtistSearch.as_view(),
+        name="artist-search",
+    ),
+    path(
+        "restapi/location/search",
+        restapiviews.LocationSearch.as_view(),
+        name="location-search",
+    ),
+    path(
+        "restapi/concert/search",
+        restapiviews.ConcertSearch.as_view(),
+        name="concert-search",
+    ),
 ]

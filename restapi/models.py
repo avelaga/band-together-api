@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Artist(models.Model):
     object_type = models.CharField(default="Artist", max_length=25)
     name = models.CharField(max_length=50, null=True)
@@ -20,12 +21,13 @@ class Artist(models.Model):
 
     def __lt__(self, other):
         return self.name < other.name
-    
+
     def __gt__(self, other):
         return self.name > other.name
-    
+
     def __eq__(self, other):
         return self.name == other.name
+
 
 class Location(models.Model):
     object_type = models.CharField(default="Location", max_length=25)
@@ -33,7 +35,7 @@ class Location(models.Model):
     country = models.CharField(max_length=100, null=True)
     population = models.IntegerField(null=True)
     timezone = models.CharField(max_length=255, null=True)
-    region = models.CharField(max_length = 255, null=True)
+    region = models.CharField(max_length=255, null=True)
     area_code = models.CharField(max_length=3, null=True)
     elevation = models.IntegerField(null=True)
     image = models.URLField(null=True)
@@ -46,12 +48,13 @@ class Location(models.Model):
 
     def __lt__(self, other):
         return self.city < other.city
-    
+
     def __gt__(self, other):
         return self.city > other.city
-    
+
     def __eq__(self, other):
         return self.city == other.city
+
 
 class Venue(models.Model):
     object_type = models.CharField(default="Venue", max_length=25)
@@ -70,12 +73,13 @@ class Venue(models.Model):
 
     def __lt__(self, other):
         return self.name < other.name
-    
+
     def __gt__(self, other):
         return self.name > other.name
-    
+
     def __eq__(self, other):
         return self.name == other.name
+
 
 class Concert(models.Model):
     object_type = models.CharField(default="Concert", max_length=25)

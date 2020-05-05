@@ -29,8 +29,10 @@ def search_artist(query):
         | Q(num_spotify_followers__icontains=query)
     )
 
+
 def search_concert_artist(query):
     return Q(name__icontains=query) | Q(genre__icontains=query)
+
 
 def search_concert(query):
     return (
@@ -49,8 +51,10 @@ def search_location(query):
         | Q(population__icontains=query)
     )
 
+
 def search_concert_location(query):
     return Q(city__icontains=query) | Q(region__icontains=query)
+
 
 def search_venue(query):
     return Q(name__icontains=query)
@@ -67,28 +71,43 @@ class ArtistList(generics.ListAPIView):
 
     def get_params(self, request):
         params = {}
-        
-        if 'minPop' in request.query_params:
-            params.update({"popularity_score__gte": int(request.query_params["minPop"])})
-        if 'maxPop' in request.query_params:
-            params.update({"popularity_score__lte": int(request.query_params["maxPop"])})
-        if 'minFollowers' in request.query_params:
-            params.update({"num_spotify_followers__gte": int(request.query_params["minFollowers"])})
-        if 'maxFollowers' in request.query_params:
-            params.update({"num_spotify_followers__lte": int(request.query_params["maxFollowers"])})
-        return params
 
+        if "minPop" in request.query_params:
+            params.update(
+                {"popularity_score__gte": int(request.query_params["minPop"])}
+            )
+        if "maxPop" in request.query_params:
+            params.update(
+                {"popularity_score__lte": int(request.query_params["maxPop"])}
+            )
+        if "minFollowers" in request.query_params:
+            params.update(
+                {
+                    "num_spotify_followers__gte": int(
+                        request.query_params["minFollowers"]
+                    )
+                }
+            )
+        if "maxFollowers" in request.query_params:
+            params.update(
+                {
+                    "num_spotify_followers__lte": int(
+                        request.query_params["maxFollowers"]
+                    )
+                }
+            )
+        return params
 
     def get(self, request, format=None):
         a = None
         params = self.get_params(request)
-        sortBy = 'name'
-        if 'sortBy' in request.query_params:
-            sortBy = request.query_params['sortBy']
-        if 'asc' in request.query_params and request.query_params['asc'] == '-1':
-            sortBy = '-' + sortBy
-    
-        if 'query' in request.query_params:
+        sortBy = "name"
+        if "sortBy" in request.query_params:
+            sortBy = request.query_params["sortBy"]
+        if "asc" in request.query_params and request.query_params["asc"] == "-1":
+            sortBy = "-" + sortBy
+
+        if "query" in request.query_params:
             query = request.query_params["query"]
             qs = search_artist(query)
             a = Artist.objects.filter(qs)
@@ -97,7 +116,6 @@ class ArtistList(generics.ListAPIView):
             a = Artist.objects.all()
             a = a.filter(**params)
 
-        
         page = self.paginate_queryset(a.order_by(sortBy))
         serializer = self.serializer_class(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -163,27 +181,31 @@ class LocationList(generics.ListAPIView):
 
     def get_params(self, request):
         params = {}
-        
-        if 'minElevation' in request.query_params:
+
+        if "minElevation" in request.query_params:
             params.update({"elevation__gte": int(request.query_params["minElevation"])})
-        if 'maxElevation' in request.query_params:
+        if "maxElevation" in request.query_params:
             params.update({"elevation__lte": int(request.query_params["maxElevation"])})
-        if 'minPopulation' in request.query_params:
-            params.update({"population__gte": int(request.query_params["minPopulation"])})
-        if 'maxPopulation' in request.query_params:
-            params.update({"population__lte": int(request.query_params["maxPopulation"])})
+        if "minPopulation" in request.query_params:
+            params.update(
+                {"population__gte": int(request.query_params["minPopulation"])}
+            )
+        if "maxPopulation" in request.query_params:
+            params.update(
+                {"population__lte": int(request.query_params["maxPopulation"])}
+            )
         return params
 
     def get(self, request, format=None):
         l = None
         params = self.get_params(request)
-        sortBy = 'city'
-        if 'sortBy' in request.query_params:
-            sortBy = request.query_params['sortBy']
-        if 'asc' in request.query_params and request.query_params['asc'] == '-1':
-            sortBy = '-' + sortBy
+        sortBy = "city"
+        if "sortBy" in request.query_params:
+            sortBy = request.query_params["sortBy"]
+        if "asc" in request.query_params and request.query_params["asc"] == "-1":
+            sortBy = "-" + sortBy
 
-        if 'query' in request.query_params:
+        if "query" in request.query_params:
             query = request.query_params["query"]
             qs = search_location(query)
             l = Location.objects.filter(qs)
@@ -255,24 +277,23 @@ class ConcertList(generics.ListAPIView):
     def get_params(self, request):
         params = {}
 
-        if 'minTicket' in request.query_params:
+        if "minTicket" in request.query_params:
             params.update({"ticket_min__gte": int(request.query_params["minTicket"])})
-        if 'maxTicket' in request.query_params:
+        if "maxTicket" in request.query_params:
             params.update({"ticket_max__lte": int(request.query_params["maxTicket"])})
-        
-        return params
 
+        return params
 
     def get(self, request, format=None):
         c = None
         params = self.get_params(request)
-        sortBy = 'artist__name'
-        if 'sortBy' in request.query_params:
-            sortBy = request.query_params['sortBy']
-        if 'asc' in request.query_params and request.query_params['asc'] == '-1':
-            sortBy = '-' + sortBy
+        sortBy = "artist__name"
+        if "sortBy" in request.query_params:
+            sortBy = request.query_params["sortBy"]
+        if "asc" in request.query_params and request.query_params["asc"] == "-1":
+            sortBy = "-" + sortBy
 
-        if 'query' in request.query_params:
+        if "query" in request.query_params:
             query = request.query_params["query"]
             cqs = search_concert(query)
             c = Concert.objects.filter(cqs)
@@ -290,9 +311,10 @@ class ConcertList(generics.ListAPIView):
             c = c.filter(**params)
 
         page = self.paginate_queryset(c.order_by(sortBy))
-        serializer = self.serializer_class(page, many=True, context={'request': request})
+        serializer = self.serializer_class(
+            page, many=True, context={"request": request}
+        )
         return self.get_paginated_response(serializer.data)
-
 
 
 class ConcertDetail(generics.RetrieveAPIView):
